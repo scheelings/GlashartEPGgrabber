@@ -70,10 +70,23 @@ namespace GlashartLibrary.Helpers
         /// <param name="localFile">The local file to download to</param>
         public static void DownloadBinaryFile(string url, string localFile)
         {
+            EnsureDirectoryExist(localFile);
             byte[] content = DownloadBinaryFile(url);
             FileStream file = File.OpenWrite(localFile);
             file.Write(content, 0, content.Length);
             file.Close();
+        }
+
+        private static void EnsureDirectoryExist(string localFile)
+        {
+            ApplicationLog.WriteDebug("Test folder for file {0}", localFile);
+            var file = new FileInfo(localFile);
+            var dir = file.Directory;
+            if (dir != null && !dir.Exists)
+            {
+                ApplicationLog.WriteInfo("Folder {0} doesn't exist, create it", dir.FullName);
+                dir.Create();
+            }
         }
 
         /// <summary>

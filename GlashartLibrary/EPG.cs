@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GlashartLibrary
 {
@@ -26,6 +23,8 @@ namespace GlashartLibrary
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public string OtherData { get; set; }
+        public string Description { get; set; }
+        public string Category { get; set; }
         //TODO: more info to read from Glashart EPG
 
         /// <summary>

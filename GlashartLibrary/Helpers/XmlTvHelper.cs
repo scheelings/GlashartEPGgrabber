@@ -84,10 +84,20 @@ namespace GlashartLibrary.Helpers
                         //Create the xml node
                         var progNode = AppendNode(root, "programme");
                         AppendAttribute(progNode, "start", prog.StartString);
-                        AppendAttribute(progNode, "end", prog.EndString);
+                        AppendAttribute(progNode, "stop", prog.EndString);
                         AppendAttribute(progNode, "channel", channel.Name);
                         var titleNode = AppendNode(progNode, "title", prog.Name);
                         AppendAttribute(titleNode, "lang", "nl");
+                        if (!string.IsNullOrWhiteSpace(prog.Description))
+                        {
+                            var descNode = AppendAttribute(progNode, "desc", prog.Description);
+                            AppendAttribute(descNode, "lang", "nl");
+                        }
+                        if (!string.IsNullOrWhiteSpace(prog.Category))
+                        {
+                            var categoryNode = AppendAttribute(progNode, "category", prog.Category);
+                            AppendAttribute(categoryNode, "lang", "nl");
+                        }
                         //TODO: add other epg info
                     }
                 }
