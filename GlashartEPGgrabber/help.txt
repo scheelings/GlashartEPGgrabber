@@ -29,6 +29,8 @@
 
 /convert-m3u		Converts a downloaded M3U file to a new M3U file
 
+/ini-settings	Load the ini file instead of the GlashartEPGgrabber.exe.config (for linux mkbundle support)
+
 Note:	all additional settings can be changed in GlashartEPGgrabber.exe.config
 	in the applicationSettings section
 Note2:	see readme.txt for more info

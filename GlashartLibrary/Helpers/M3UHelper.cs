@@ -177,7 +177,7 @@ namespace GlashartLibrary.Helpers
         /// <returns></returns>
         private static string GetLocationUrl(string url)
         {
-            if (Settings.Default.IgmpToUdp)
+            if (Main.Settings.IgmpToUdp)
                 url = url.Replace("igmp://", "udp://@");
             return url;
         }

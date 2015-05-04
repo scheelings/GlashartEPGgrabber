@@ -26,6 +26,8 @@ namespace GlashartEPGgrabber
         private const string CommandLineArgument_All = "/all";
 
         private const string CommandLineArgument_ConvertM3U = "/convert-m3u";
+
+        private const string CommandLineArgument_IniSettings = "/ini-settings";
         
         private static bool ShowHelp = true;
         private static bool DownloadTvMenu = false;
@@ -38,6 +40,7 @@ namespace GlashartEPGgrabber
         private static bool DecompressEPG = false;
         private static bool XmlTV = false;
         private static bool ConvertM3U = false;
+        private static bool IniSettings = false;
 
         /// <summary>
         /// Main entry of the console application
@@ -52,15 +55,16 @@ namespace GlashartEPGgrabber
 
             if (ShowHelp)
             {
-                using (StreamReader stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("GlashartEPGgrabber.help.txt")))
+                using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("GlashartEPGgrabber.help.txt")))
                 {
-                    string help = stream.ReadToEnd();
+                    var help = stream.ReadToEnd();
                     Console.WriteLine(help);
                 }
                 ExitApplication();
             }
             else
             {
+                GlashartLibrary.Main.Settings = LoadSettings();
                 if (DownloadTvMenu)
                     GlashartLibrary.Main.DownloadTvMenu();
                 if (DecompressTvMenu)
@@ -192,8 +196,24 @@ namespace GlashartEPGgrabber
                     ConvertM3U = true;
                     ShowHelp = false;
                 }
-
+                else if (arg.Trim().Equals(CommandLineArgument_IniSettings))
+                {
+                    IniSettings = true;
+                }
             }
+        }
+
+        private static ISettings LoadSettings()
+        {
+            if(!IniSettings) return new ConfigSettings();
+            LogSetup.Setup();
+            var settings = new IniSettings();
+            settings.Load();
+            if (!string.IsNullOrWhiteSpace(settings.LogLevel))
+            {
+                LogSetup.ChangeLogLevel(settings.LogLevel);
+            }
+            return settings;
         }
     }
 }
