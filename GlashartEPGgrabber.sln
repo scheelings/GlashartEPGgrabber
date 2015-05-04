@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlashartEPGgrabber", "GlashartEPGgrabber\GlashartEPGgrabber.csproj", "{41E44F64-F672-4BDA-824E-904054FD8105}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlashartLibrary", "GlashartLibrary\GlashartLibrary.csproj", "{42EF903B-4CA0-4E63-8111-BE9B3B152C81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{01AC758B-B7D6-423F-AE28-8330935611AC}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{41E44F64-F672-4BDA-824E-904054FD8105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41E44F64-F672-4BDA-824E-904054FD8105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41E44F64-F672-4BDA-824E-904054FD8105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41E44F64-F672-4BDA-824E-904054FD8105}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42EF903B-4CA0-4E63-8111-BE9B3B152C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42EF903B-4CA0-4E63-8111-BE9B3B152C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42EF903B-4CA0-4E63-8111-BE9B3B152C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42EF903B-4CA0-4E63-8111-BE9B3B152C81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

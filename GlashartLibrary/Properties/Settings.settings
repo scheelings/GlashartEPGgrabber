@@ -1,0 +1,47 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GlashartLibrary.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TvMenuURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://w.zt6.nl/tvmenu/</Value>
+    </Setting>
+    <Setting Name="EpgURL" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://w.zt6.nl/epgdata/</Value>
+    </Setting>
+    <Setting Name="TvMenuFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\TvMenu</Value>
+    </Setting>
+    <Setting Name="M3UfileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\TvMenu\glashart.m3u</Value>
+    </Setting>
+    <Setting Name="IgmpToUdp" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="M3U_ChannelLocationImportance" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;ztv-hd&lt;/string&gt;
+  &lt;string&gt;ztv-sd&lt;/string&gt;
+  &lt;string&gt;ztv&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="ChannelsListFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\ChannelList.txt</Value>
+    </Setting>
+    <Setting Name="EpgNumberOfDays" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="EpgFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\EPG</Value>
+    </Setting>
+    <Setting Name="EpgArchiving" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="XmlTvFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\guide.xml</Value>
+    </Setting>
+    <Setting Name="DownloadedM3UFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\glashart-downloaded.m3u</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
