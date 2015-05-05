@@ -93,10 +93,13 @@ namespace GlashartLibrary.Helpers
                             var descNode = AppendAttribute(progNode, "desc", prog.Description);
                             AppendAttribute(descNode, "lang", "nl");
                         }
-                        if (!string.IsNullOrWhiteSpace(prog.Category))
+                        if (prog.Genres.Any())
                         {
-                            var categoryNode = AppendAttribute(progNode, "category", prog.Category);
-                            AppendAttribute(categoryNode, "lang", "nl");
+                            foreach (var genre in prog.Genres)
+                            {
+                                var categoryNode = AppendAttribute(progNode, "category", genre);
+                                AppendAttribute(categoryNode, "lang", "nl");
+                            }
                         }
                         //TODO: add other epg info
                     }

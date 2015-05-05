@@ -47,6 +47,9 @@ namespace GlashartEPGgrabber
             hierarchy.Root.AddAppender(console);
 
             hierarchy.Root.Level = Level.Info;
+#if DEBUG
+            hierarchy.Root.Level = Level.Debug;
+#endif
             hierarchy.Configured = true;
         }
 

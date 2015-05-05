@@ -214,5 +214,28 @@ namespace GlashartLibrary.Helpers
                     file.Delete();
             }
         }
+
+        public static string DownloadDetails(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
+            {
+                ApplicationLog.WriteDebug("No valid ID to download details");
+                return null;
+            }
+            try
+            {
+                var dir = id.Substring(id.Length - 2, 2);
+                var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
+                ApplicationLog.WriteDebug("Try to download {0}", url);
+                var data = HttpDownloader.DownloadTextFile(url);
+                ApplicationLog.WriteDebug("Downloaded details: {0}", data);
+            }
+            catch (Exception)
+            {
+                ApplicationLog.WriteDebug("No detailed data found for id {0}");
+            }
+            return null;
+        }
     }
 }
+

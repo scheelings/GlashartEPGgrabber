@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.SqlServer.Server;
 
 namespace GlashartEPGgrabber
 {
@@ -19,6 +20,7 @@ namespace GlashartEPGgrabber
         private const string CommandLineArgument_GenerateM3Ufile = "/m3u";
         private const string CommandLineArgument_DownloadEPG = "/dl-epg";
         private const string CommandLineArgument_DecompressEPG = "/unzip-epg";
+        private const string CommandLineArgument_DownloadDetails = "/dl-details";
         private const string CommandLineArgument_XmlTV = "/xmltv";
 
         private const string CommandLineArgument_AllM3U = "/all-m3u";
@@ -41,6 +43,7 @@ namespace GlashartEPGgrabber
         private static bool XmlTV = false;
         private static bool ConvertM3U = false;
         private static bool IniSettings = false;
+        private static bool DownloadDetails = false;
 
         /// <summary>
         /// Main entry of the console application
@@ -82,8 +85,11 @@ namespace GlashartEPGgrabber
                     GlashartLibrary.Main.DownloadEPGfiles();
                 if (DecompressEPG)
                     GlashartLibrary.Main.DecompressEPGfiles();
+                List<EpgChannel> epgData = null;
+                if (DownloadDetails)
+                    epgData = GlashartLibrary.Main.DownloadDetails();
                 if (XmlTV)
-                    GlashartLibrary.Main.GenerateXmlTv();
+                    GlashartLibrary.Main.GenerateXmlTv(epgData);
                 if (ConvertM3U)
                     GlashartLibrary.Main.ConvertM3Ufile();
 
@@ -147,6 +153,10 @@ namespace GlashartEPGgrabber
                     DownloadEPG = true;
                     ShowHelp = false;
                 }
+                else if (arg.Trim().Equals(CommandLineArgument_DownloadDetails))
+                {
+                    DownloadDetails = true;
+                }
                 else if (arg.Trim().Equals(CommandLineArgument_DecompressEPG))
                 {
                     DecompressEPG = true;
@@ -172,6 +182,7 @@ namespace GlashartEPGgrabber
                 {
                     DownloadEPG = true;
                     DecompressEPG = true;
+                    DownloadDetails = true;
                     XmlTV = true;
 
                     ShowHelp = false;
@@ -187,6 +198,7 @@ namespace GlashartEPGgrabber
 
                     DownloadEPG = true;
                     DecompressEPG = true;
+                    DownloadDetails = true;
                     XmlTV = true;
 
                     ShowHelp = false;

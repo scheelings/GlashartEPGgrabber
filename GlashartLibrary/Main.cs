@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GlashartLibrary
 {
@@ -305,17 +306,27 @@ namespace GlashartLibrary
             }
         }
 
+        private static List<EpgChannel> ReadEpgFromFiles()
+        {
+            ApplicationLog.WriteInfo("Reading EPG files from folder {0}", Settings.EpgFolder);
+            var epg = EPGhelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
+            ApplicationLog.WriteInfo("EPG files read");
+            return epg;
+        }
+
         /// <summary>
         /// Generates the XMLTV file
         /// </summary>
-        public static bool GenerateXmlTv(List<Channel> channels = null)
+        public static bool GenerateXmlTv(List<EpgChannel> epg = null)
         {
             try
             {
+                List<Channel> channels = null;
                 //Read the EPG files
-                ApplicationLog.WriteInfo("Reading EPG files from folder {0}", Settings.EpgFolder);
-                var epg = EPGhelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
-                ApplicationLog.WriteInfo("EPG files read");
+                if (epg == null)
+                {
+                    epg = ReadEpgFromFiles();
+                }
 
                 try
                 {
@@ -366,6 +377,38 @@ namespace GlashartLibrary
                 ApplicationLog.WriteError(err);
                 return false;
             }
+        }
+
+        public static List<EpgChannel> DownloadDetails()
+        {
+            int succes = 0, failed = 0;
+            var epg = ReadEpgFromFiles();
+            float total = epg.SelectMany(channel => channel.Programs).Count();
+            var percent = 0;
+            epg.SelectMany(channel => channel.Programs).AsParallel().ForAll(program =>
+            {
+                var current = (int)((succes + failed)/total) * 100;
+                if (current != percent)
+                {
+                    percent = current;
+                    ApplicationLog.WriteInfo("Tried downloading {0}% EPG program details", percent);
+                }
+                ApplicationLog.WriteDebug("Try to download details for: {0}", program.Id);
+                var details = EPGhelper.DownloadDetails(program.Id);
+                if (string.IsNullOrWhiteSpace(details))
+                {
+                    failed++;
+                    return;
+                }
+                var parsed = JsonConvert.DeserializeObject<EpgDetails>(details);
+                program.Description = parsed.Description;
+                program.Genres = parsed.Genres;
+                ApplicationLog.WriteDebug("Updated program {0}", program.Id);
+                succes++;
+            });
+            ApplicationLog.WriteInfo("Succesfully loaded details for {0} programs", succes);
+            ApplicationLog.WriteInfo("Failed to load details for {0} programs", failed);
+            return epg;
         }
     }
 }

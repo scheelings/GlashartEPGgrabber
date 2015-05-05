@@ -24,7 +24,7 @@ namespace GlashartLibrary
         public DateTime End { get; set; }
         public string OtherData { get; set; }
         public string Description { get; set; }
-        public string Category { get; set; }
+        public List<string> Genres { get; set; }
         //TODO: more info to read from Glashart EPG
 
         /// <summary>
@@ -70,5 +70,17 @@ namespace GlashartLibrary
         {
             return string.Format("{0} / {1}  {2}", Start.ToString("dd-MM-yy HH:mm"), End.ToString("dd-MM-yy HH:mm"), Name);
         }
+    }
+
+    public class EpgDetails
+    {
+        //{"id":"838882ca-79c4-409f-9966-2f9121c94f0e","name":"Lara","start":1430757300,"end":1430760300,"description":"","genres":["Serie"],"disableRestart":false}
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Start { get; set; }
+        public string End { get; set; }
+        public string Description { get; set; }
+        public List<string> Genres { get; set; }
+        public bool DisableRestart { get; set; }
     }
 }
