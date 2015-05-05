@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class XmlTvHelper
     {
         private static XmlDocument xml;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(XmlTvHelper));
 
         /// <summary>
         /// Generates the XMLtv file
@@ -76,10 +76,11 @@ namespace GlashartLibrary.Helpers
             {
                 //Get the epg channel
                 var epgChannel = epgChannels.FirstOrDefault(c => c.Channel.Equals(channel.Key, StringComparison.InvariantCultureIgnoreCase));
-                if (epgChannel != null)
+                if(epgChannel == null) continue;
+                //Loop through the programs
+                foreach (var prog in epgChannel.Programs)
                 {
-                    //Loop through the programs
-                    foreach (var prog in epgChannel.Programs)
+                    try
                     {
                         //Create the xml node
                         var progNode = AppendNode(root, "programme");
@@ -90,18 +91,22 @@ namespace GlashartLibrary.Helpers
                         AppendAttribute(titleNode, "lang", "nl");
                         if (!string.IsNullOrWhiteSpace(prog.Description))
                         {
-                            var descNode = AppendAttribute(progNode, "desc", prog.Description);
+                            var descNode = AppendNode(progNode, "desc", prog.Description);
                             AppendAttribute(descNode, "lang", "nl");
                         }
-                        if (prog.Genres.Any())
+                        if (prog.Genres != null && prog.Genres.Any())
                         {
                             foreach (var genre in prog.Genres)
                             {
-                                var categoryNode = AppendAttribute(progNode, "category", genre);
+                                var categoryNode = AppendNode(progNode, "category", genre);
                                 AppendAttribute(categoryNode, "lang", "nl");
                             }
                         }
                         //TODO: add other epg info
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Failed on prog {0}", prog.Id);
                     }
                 }
             }

@@ -227,6 +227,7 @@ namespace GlashartLibrary.Helpers
                 var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
                 Logger.DebugFormat("Try to download {0}", url);
                 var data = HttpDownloader.DownloadTextFile(url);
+                //var data = "{\"id\":\"061079be-1516-4a4d-ad50-ba394557b6ad\",\"name\":\"NOS Journaal / Actueel / herhalingen NOS Journaal / Extra onderwerpen\",\"start\":1431075600,\"end\":1431097200,\"description\":\"Het nieuws van de dag.\",\"genres\":[\"Actualiteit\",\"Info\"],\"disableRestart\":false}";
                 Logger.DebugFormat("Downloaded details: {0}", data);
                 return data;
             }

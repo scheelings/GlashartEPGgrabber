@@ -346,11 +346,10 @@ namespace GlashartLibrary
         /// <summary>
         /// Generates the XMLTV file
         /// </summary>
-        public static bool GenerateXmlTv(List<EpgChannel> epg)
+        public static bool GenerateXmlTv(List<EpgChannel> epg, List<Channel> channelsToUse)
         {
             try
             {
-                var channelsToUse = ReadChannelList();
                 //Generate XMLTV file
                 string xmltvFile = Settings.XmlTvFileName;
                 Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
@@ -366,14 +365,21 @@ namespace GlashartLibrary
             }
         }
 
-        public static List<EpgChannel> DownloadDetails(List<EpgChannel> epg)
+        public static List<EpgChannel> DownloadDetails(List<EpgChannel> epg, List<Channel> channelsToUse)
         {
             int succes = 0, failed = 0, percent = 0;
-            float total = epg.SelectMany(channel => channel.Programs).Count();
-            foreach(var program in epg.SelectMany(channel => channel.Programs))
+            var list = epg.AsEnumerable();
+            //If a channel list is given, filter the epg
+            if (channelsToUse.Any())
+            {
+                list = epg.Where(e => channelsToUse.Any(c => c.Key == e.Channel));
+            }
+            var programs = list.SelectMany(channel => channel.Programs).ToList();
+            //Loop over all the programs and try to load the details
+            foreach (var program in programs)
             {
                 //Log percentage of completion
-                var current = (int)(((succes + failed)/total) * 100);
+                var current = (int)(((succes + failed)/(float)programs.Count) * 100);
                 if (current != percent)
                 {
                     percent = current;
