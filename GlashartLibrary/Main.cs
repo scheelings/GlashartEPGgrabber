@@ -6,12 +6,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using log4net;
 using Newtonsoft.Json;
 
 namespace GlashartLibrary
 {
     public sealed class Main
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Main));
+
         public static ISettings Settings;
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
@@ -31,15 +34,15 @@ namespace GlashartLibrary
                 string url = string.Concat(Settings.TvMenuURL, TvMenuFileName);
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
 
-                ApplicationLog.WriteInfo("Downloading TV menu to {0}", localFile);
+                Logger.InfoFormat("Downloading TV menu to {0}", localFile);
                 HttpDownloader.DownloadBinaryFile(url, localFile);
-                ApplicationLog.WriteInfo("TV menu file downloaded");
+                Logger.Info("TV menu file downloaded");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -55,15 +58,15 @@ namespace GlashartLibrary
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
                 string localHtmlFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileNameDecompressed);
 
-                ApplicationLog.WriteInfo("Uncompressing TV menu to {0}", localHtmlFile);
+                Logger.InfoFormat("Uncompressing TV menu to {0}", localHtmlFile);
                 CompressionHelper.Decompress(localFile, localHtmlFile);
-                ApplicationLog.WriteInfo("TV menu file uncompressed");
+                Logger.Info("TV menu file uncompressed");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -81,7 +84,7 @@ namespace GlashartLibrary
                 string javascriptFile = HtmlHelper.GetScriptTagSrc(localHtmlFile);
                 if (string.IsNullOrWhiteSpace(javascriptFile))
                 {
-                    ApplicationLog.WriteError("TV menu script file not found in TV menu HTML file");
+                    Logger.Error("TV menu script file not found in TV menu HTML file");
                     return false;
                 }
 
@@ -89,15 +92,15 @@ namespace GlashartLibrary
                 string url = string.Concat(Settings.TvMenuURL, javascriptFile);
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
 
-                ApplicationLog.WriteInfo("Downloading TV menu script to {0}", localFile);
+                Logger.InfoFormat("Downloading TV menu script to {0}", localFile);
                 HttpDownloader.DownloadBinaryFile(url, localFile);
-                ApplicationLog.WriteInfo("TV menu script file downloaded");
+                Logger.Info("TV menu script file downloaded");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -113,15 +116,15 @@ namespace GlashartLibrary
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
                 string localHtmlFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFileDecompressed);
 
-                ApplicationLog.WriteInfo("Uncompressing TV menu script file to {0}", localHtmlFile);
+                Logger.InfoFormat("Uncompressing TV menu script file to {0}", localHtmlFile);
                 CompressionHelper.Decompress(localFile, localHtmlFile);
-                ApplicationLog.WriteInfo("TV menu script file uncompressed");
+                Logger.Info("TV menu script file uncompressed");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -135,20 +138,20 @@ namespace GlashartLibrary
             {
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFileDecompressed);
 
-                ApplicationLog.WriteInfo("Parsing channels from the TV menu script file");
+                Logger.Info("Parsing channels from the TV menu script file");
                 var channels = JavascriptHelper.ParseChannnels(localFile);
-                ApplicationLog.WriteInfo("{0} channels found in TV menu script file", channels.Count);
+                Logger.InfoFormat("{0} channels found in TV menu script file", channels.Count);
 
                 string channelFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                ApplicationLog.WriteInfo("Logging channel list to file {0}", channelFile);
+                Logger.InfoFormat("Logging channel list to file {0}", channelFile);
                 XmlHelper.Serialize(channels, channelFile);
-                ApplicationLog.WriteInfo("Channel XML file generated");
+                Logger.Info("Channel XML file generated");
 
                 return channels;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return null;
             }
         }
@@ -170,23 +173,23 @@ namespace GlashartLibrary
                 //Read the channels for the xml file
                 if (channels == null)
                 {
-                    ApplicationLog.WriteInfo("Reading channels from XML file {0}", localFile);
+                    Logger.InfoFormat("Reading channels from XML file {0}", localFile);
                     channels = XmlHelper.Deserialize<List<Channel>>(localFile);
-                    ApplicationLog.WriteInfo("{0} channels found in channels xml file", channels.Count);
+                    Logger.InfoFormat("{0} channels found in channels xml file", channels.Count);
                 }
 
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(channels);
 
-                ApplicationLog.WriteInfo("Generating M3U file {0} based on channels", m3uFile);
+                Logger.InfoFormat("Generating M3U file {0} based on channels", m3uFile);
                 result = M3UHelper.GenerateM3U(channels, channelList, m3uFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
-                ApplicationLog.WriteInfo("M3U file generated");
+                Logger.Info("M3U file generated");
 
                 return result;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return null;
             }
         }
@@ -201,22 +204,22 @@ namespace GlashartLibrary
                 string m3uFile = Settings.M3UfileName;
                 string downloadedM3uFile = Settings.DownloadedM3UFileName;
 
-                ApplicationLog.WriteInfo("Reading downloaded M3U file {0}", downloadedM3uFile);
+                Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3uFile);
                 var channels = M3UHelper.ParseM3U(downloadedM3uFile);
-                ApplicationLog.WriteInfo("Downloaded M3U file parsed");
+                Logger.Info("Downloaded M3U file parsed");
 
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(null);
 
-                ApplicationLog.WriteInfo("Generating M3U file {0} based on parsed M3U file", m3uFile);
+                Logger.InfoFormat("Generating M3U file {0} based on parsed M3U file", m3uFile);
                 M3UHelper.GenerateM3U(channels, channelList, m3uFile);
-                ApplicationLog.WriteInfo("M3U file generated");
+                Logger.Info("M3U file generated");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -231,7 +234,7 @@ namespace GlashartLibrary
 
             //Read the channel list file (which has channels per line in the format {number},{originalname},{newname}. {newname} is optional)
             string fileName = Settings.ChannelsListFile;
-            ApplicationLog.WriteDebug("Reading channel list from {0}", fileName);
+            Logger.DebugFormat("Reading channel list from {0}", fileName);
 
             if (File.Exists(fileName))
             {
@@ -246,7 +249,7 @@ namespace GlashartLibrary
             //When the list is empty, create a list on all available channels
             if (result.Count == 0 && availableChannels != null)
             {
-                ApplicationLog.WriteDebug("No channels found in channel list file. Using all available channels");
+                Logger.Debug("No channels found in channel list file. Using all available channels");
                 for (int i = 0; i < availableChannels.Count; i++)
                     result.Add(new ChannelListItem { Number = (i + 1), OriginalName = availableChannels[i].Name });
             }
@@ -263,24 +266,24 @@ namespace GlashartLibrary
             {
                 try
                 {
-                    ApplicationLog.WriteDebug("Cleanup EPG files from folder {0} (older than {1} days)", Settings.EpgFolder, Settings.EpgArchiving);
+                    Logger.DebugFormat("Cleanup EPG files from folder {0} (older than {1} days)", Settings.EpgFolder, Settings.EpgArchiving);
                     EPGhelper.CleanUpEPG(Settings.EpgFolder, Settings.EpgArchiving);
-                    ApplicationLog.WriteDebug("EPG files cleaned up");
+                    Logger.Debug("EPG files cleaned up");
                 }
                 catch (Exception err)
                 {
-                    ApplicationLog.WriteError(err);
+                    Logger.Error(err);
                 }
 
-                ApplicationLog.WriteInfo("Downloading EPG files to folder {0}", Settings.EpgFolder);
+                Logger.InfoFormat("Downloading EPG files to folder {0}", Settings.EpgFolder);
                 EPGhelper.DownloadEPGfiles(Settings.EpgURL, Settings.EpgFolder, Settings.EpgNumberOfDays);
-                ApplicationLog.WriteInfo("EPG files downloaded");
+                Logger.Info("EPG files downloaded");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -293,24 +296,24 @@ namespace GlashartLibrary
             try
             {
 
-                ApplicationLog.WriteInfo("Decompressing EPG files in folder {0}", Settings.EpgFolder);
+                Logger.InfoFormat("Decompressing EPG files in folder {0}", Settings.EpgFolder);
                 EPGhelper.DecompressEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
-                ApplicationLog.WriteInfo("EPG files decompressed");
+                Logger.Info("EPG files decompressed");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
 
         private static List<EpgChannel> ReadEpgFromFiles()
         {
-            ApplicationLog.WriteInfo("Reading EPG files from folder {0}", Settings.EpgFolder);
+            Logger.InfoFormat("Reading EPG files from folder {0}", Settings.EpgFolder);
             var epg = EPGhelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
-            ApplicationLog.WriteInfo("EPG files read");
+            Logger.Info("EPG files read");
             return epg;
         }
 
@@ -331,20 +334,20 @@ namespace GlashartLibrary
                 {
                     //Write EPG to XML file
                     string file = Path.Combine(Settings.EpgFolder, EPGXmlFile);
-                    ApplicationLog.WriteInfo("Writing EPG to XML file {0}", file);
+                    Logger.InfoFormat("Writing EPG to XML file {0}", file);
                     XmlHelper.Serialize(epg, file);
-                    ApplicationLog.WriteInfo("EPG XML file written");
+                    Logger.Info("EPG XML file written");
                 }
                 catch (Exception err)
                 {
-                    ApplicationLog.WriteError(err);
+                    Logger.Error(err);
                 }
 
                 //Read the channels for the xml file
                 string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                ApplicationLog.WriteDebug("Reading channels from XML file {0}", localFile);
+                Logger.DebugFormat("Reading channels from XML file {0}", localFile);
                 var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
-                ApplicationLog.WriteDebug("{0} channels found in channels xml file", channels.Count);
+                Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
                 
 
                 //Determine if a channel list is present
@@ -363,15 +366,15 @@ namespace GlashartLibrary
 
                 //Generate XMLTV file
                 string xmltvFile = Settings.XmlTvFileName;
-                ApplicationLog.WriteInfo("Generating XMLTV file {0}", xmltvFile);
+                Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
                 XmlTvHelper.GenerateXmlTv(epg, channelsToUse, xmltvFile);
-                ApplicationLog.WriteInfo("XMLTV file generated");
+                Logger.Info("XMLTV file generated");
 
                 return true;
             }
             catch (Exception err)
             {
-                ApplicationLog.WriteError(err);
+                Logger.Error(err);
                 return false;
             }
         }
@@ -389,10 +392,10 @@ namespace GlashartLibrary
                 if (current != percent)
                 {
                     percent = current;
-                    ApplicationLog.WriteInfo("Tried downloading {0}% EPG program details", percent);
+                    Logger.InfoFormat("Tried downloading {0}% EPG program details", percent);
                 }
                 //Download string
-                ApplicationLog.WriteDebug("Try to download details for: {0}", program.Id);
+                Logger.DebugFormat("Try to download details for: {0}", program.Id);
                 var details = EPGhelper.DownloadDetails(program.Id);
                 if (string.IsNullOrWhiteSpace(details))
                 {
@@ -403,12 +406,12 @@ namespace GlashartLibrary
                 var parsed = JsonConvert.DeserializeObject<EpgDetails>(details);
                 program.Description = parsed.Description;
                 program.Genres = parsed.Genres;
-                ApplicationLog.WriteDebug("Updated program {0}", program.Id);
+                Logger.DebugFormat("Updated program {0}", program.Id);
                 succes++;
             }
 
-            ApplicationLog.WriteInfo("Succesfully loaded details for {0} programs", succes);
-            ApplicationLog.WriteInfo("Failed to load details for {0} programs", failed);
+            Logger.InfoFormat("Succesfully loaded details for {0} programs", succes);
+            Logger.InfoFormat("Failed to load details for {0} programs", failed);
             return epg;
         }
     }

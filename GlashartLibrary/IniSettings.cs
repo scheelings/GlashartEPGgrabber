@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using log4net;
 
 namespace GlashartLibrary
 {
     public class IniSettings : ISettings
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(IniSettings));
+
         public string TvMenuURL { get; private set; }
         public string EpgURL { get; private set; }
         public string TvMenuFolder { get; set; }
@@ -23,7 +26,7 @@ namespace GlashartLibrary
 
         public void Load()
         {
-            ApplicationLog.WriteInfo("Read GlashartEPGgrabber.ini");
+            Logger.Info("Read GlashartEPGgrabber.ini");
             try
             {
                 using (var reader = new StreamReader("GlashartEPGgrabber.ini"))
@@ -31,7 +34,7 @@ namespace GlashartLibrary
                     {
                         var line = reader.ReadLine();
                         if (string.IsNullOrWhiteSpace(line)) continue;
-                        ApplicationLog.WriteDebug("Process line {0}", line);
+                        Logger.DebugFormat("Process line {0}", line);
                         ReadConfigItem(line);
                     }
 
@@ -47,7 +50,7 @@ namespace GlashartLibrary
             var keyvalue = line.Split('=');
             if (keyvalue.Length < 2)
             {
-                ApplicationLog.WriteWarning("Failed to read configuration line: {0}", line);
+                Logger.WarnFormat("Failed to read configuration line: {0}", line);
                 return;
             }
             SetValue(keyvalue[0], keyvalue[1]);
@@ -98,10 +101,10 @@ namespace GlashartLibrary
                     break;
                 
                 default:
-                    ApplicationLog.WriteWarning("Unknown configuration key: {0}", key);
+                    Logger.WarnFormat("Unknown configuration key: {0}", key);
                     return;
             }
-            ApplicationLog.WriteDebug("Read configuration item {0} with value {1}", key, value);
+            Logger.DebugFormat("Read configuration item {0} with value {1}", key, value);
         }
     }
 }

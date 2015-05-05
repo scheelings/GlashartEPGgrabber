@@ -5,11 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class M3UHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(M3UHelper));
+
         private const string ChannelLineStart = "#EXTINF:";
         private static readonly string[] ChannelUrlStarts = new string[] { "udp://", "rtp://", "rtsp://", "igmp://" };
 
@@ -42,12 +45,12 @@ namespace GlashartLibrary.Helpers
                 Channel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
-                    ApplicationLog.WriteDebug("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
+                    Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
                     continue;
                 }
                 if (channel.Locations == null || channel.Locations.Count == 0)
                 {
-                    ApplicationLog.WriteDebug("M3U generator ignores {0}, because no locations found", channel.Name);
+                    Logger.DebugFormat("M3U generator ignores {0}, because no locations found", channel.Name);
                     continue;
                 }
 
@@ -72,7 +75,7 @@ namespace GlashartLibrary.Helpers
                 {
                     var location = channel.Locations.First();
                     lines.Add(GetLocationUrl(location.Url));
-                    ApplicationLog.WriteDebug("M3U generator selects first location {0} for channel {1}, because no important location is found", location.Name, channel.Name);
+                    Logger.DebugFormat("M3U generator selects first location {0} for channel {1}, because no important location is found", location.Name, channel.Name);
                 }
             }
 
@@ -109,12 +112,12 @@ namespace GlashartLibrary.Helpers
                 M3UChannel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
-                    ApplicationLog.WriteDebug("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
+                    Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
                     continue;
                 }
                 if (string.IsNullOrWhiteSpace(channel.URL))
                 {
-                    ApplicationLog.WriteDebug("M3U generator ignores {0}, because no URL present", channel.Name);
+                    Logger.DebugFormat("M3U generator ignores {0}, because no URL present", channel.Name);
                     continue;
                 }
 

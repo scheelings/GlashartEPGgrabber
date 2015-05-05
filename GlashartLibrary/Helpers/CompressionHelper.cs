@@ -3,11 +3,14 @@ using System.IO;
 using System.IO.Compression;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.GZip;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class CompressionHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(CompressionHelper));
+
         /// <summary>
         /// Decompresses the specified compressed file.
         /// </summary>
@@ -80,7 +83,7 @@ namespace GlashartLibrary.Helpers
             }
             catch (Exception ex)
             {
-                ApplicationLog.WriteError(ex, "Failed to extract {0}", gzipFileName);
+                Logger.Error(ex, "Failed to extract {0}", gzipFileName);
                 return false;
             }
         }

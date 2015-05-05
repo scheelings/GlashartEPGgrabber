@@ -6,12 +6,15 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using log4net;
 using Microsoft.SqlServer.Server;
 
 namespace GlashartEPGgrabber
 {
     public class Program
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Program));
+
         private const string CommandLineArgument_DownloadTvMenu = "/dl-tvmenu";
         private const string CommandLineArgument_DecompressTvMenu = "/unzip-tvmenu";
         private const string CommandLineArgument_DownloadTvMenuScript = "/dl-tvscript";
@@ -53,8 +56,8 @@ namespace GlashartEPGgrabber
         {
             CheckCommandLineArguments(args);
 
-            ApplicationLog.WriteInfo("Glashart EPG Grabber (by Dennieku)");
-            ApplicationLog.WriteInfo("----------------------------------");
+            Logger.Info("Glashart EPG Grabber (by Dennieku, JanSaris)");
+            Logger.Info("----------------------------------");
 
             if (ShowHelp)
             {
@@ -99,7 +102,7 @@ namespace GlashartEPGgrabber
 
         private static void ExitApplication()
         {
-            ApplicationLog.WriteInfo("Glashart EPG Grabber ended");
+            Logger.Info("Glashart EPG Grabber ended");
 #if DEBUG
             Console.WriteLine("Press any key to exit...");
             Console.Read();

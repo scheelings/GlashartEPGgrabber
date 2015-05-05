@@ -8,11 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class EPGhelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(EPGhelper));
         private const string EpgFileNameFormat = "epgdata.{datepart}.{daypart}.json.gz";
 
         /// <summary>
@@ -43,7 +45,7 @@ namespace GlashartLibrary.Helpers
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to download EPG for URL '{0}'", url);
+                        Logger.Error(err, "Unable to download EPG for URL '{0}'", url);
                     }
                 }
             }
@@ -76,12 +78,12 @@ namespace GlashartLibrary.Helpers
                         }
                         else
                         {
-                            ApplicationLog.WriteDebug("EPG file {0} not found to decompress", name);
+                            Logger.DebugFormat("EPG file {0} not found to decompress", name);
                         }
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to decompress EPG file '{0}'", name);
+                        Logger.Error(err, "Unable to decompress EPG file '{0}'", name);
                     }
                 }
             }
@@ -172,12 +174,12 @@ namespace GlashartLibrary.Helpers
                         }
                         else
                         {
-                            ApplicationLog.WriteDebug("EPG file {0} not found to read", name.Replace(".gz", ""));
+                            Logger.DebugFormat("EPG file {0} not found to read", name.Replace(".gz", ""));
                         }
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to decompress EPG file '{0}'", name);
+                        Logger.Error(err, "Unable to decompress EPG file '{0}'", name);
                     }
                 }
             }
@@ -216,21 +218,21 @@ namespace GlashartLibrary.Helpers
         {
             if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
             {
-                ApplicationLog.WriteDebug("No valid ID to download details");
+                Logger.DebugFormat("No valid ID to download details");
                 return null;
             }
             try
             {
                 var dir = id.Substring(id.Length - 2, 2);
                 var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
-                ApplicationLog.WriteDebug("Try to download {0}", url);
+                Logger.DebugFormat("Try to download {0}", url);
                 var data = HttpDownloader.DownloadTextFile(url);
-                ApplicationLog.WriteDebug("Downloaded details: {0}", data);
+                Logger.DebugFormat("Downloaded details: {0}", data);
                 return data;
             }
             catch (Exception)
             {
-                ApplicationLog.WriteDebug("No detailed data found for id {0}");
+                Logger.DebugFormat("No detailed data found for id {0}");
                 return null;
             }
         }

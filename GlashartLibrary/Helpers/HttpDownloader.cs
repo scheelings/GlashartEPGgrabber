@@ -2,11 +2,14 @@
 using System.Net;
 using System.IO;
 using System.Text;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public class HttpDownloader
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(HttpDownloader));
+
         private const int DownloadBlockSize = 4096;
 
         /// <summary>
@@ -79,12 +82,12 @@ namespace GlashartLibrary.Helpers
 
         private static void EnsureDirectoryExist(string localFile)
         {
-            ApplicationLog.WriteDebug("Test folder for file {0}", localFile);
+            Logger.DebugFormat("Test folder for file {0}", localFile);
             var file = new FileInfo(localFile);
             var dir = file.Directory;
             if (dir != null && !dir.Exists)
             {
-                ApplicationLog.WriteInfo("Folder {0} doesn't exist, create it", dir.FullName);
+                Logger.InfoFormat("Folder {0} doesn't exist, create it", dir.FullName);
                 dir.Create();
             }
         }
