@@ -223,6 +223,7 @@ namespace GlashartLibrary
                 return false;
             }
         }
+
         /// <summary>
         /// Reads the channel list from the channel file
         /// </summary>
@@ -295,7 +296,6 @@ namespace GlashartLibrary
         {
             try
             {
-
                 Logger.InfoFormat("Decompressing EPG files in folder {0}", Settings.EpgFolder);
                 EPGhelper.DecompressEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
                 Logger.Info("EPG files decompressed");
@@ -309,7 +309,7 @@ namespace GlashartLibrary
             }
         }
 
-        private static List<EpgChannel> ReadEpgFromFiles()
+        public static List<EpgChannel> ReadEpgFromFiles()
         {
             Logger.InfoFormat("Reading EPG files from folder {0}", Settings.EpgFolder);
             var epg = EPGhelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
@@ -317,53 +317,40 @@ namespace GlashartLibrary
             return epg;
         }
 
+        public static List<Channel> ReadChannelList()
+        {
+            //Read the channels for the xml file
+            string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
+            Logger.DebugFormat("Reading channels from XML file {0}", localFile);
+            var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
+            Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
+
+
+            //Determine if a channel list is present
+            var channelList = ReadChannelList(channels);
+            //Filter the channels based on the channel list, because this is the list we want to use
+            List<Channel> channelsToUse = new List<Channel>();
+            foreach (var channelListItem in channelList)
+            {
+                var channelToUse = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+                if (channelToUse != null)
+                {
+                    channelToUse.Name = channelListItem.GetName();
+                    channelsToUse.Add(channelToUse);
+                }
+            }
+
+            return channelsToUse;
+        }
+
         /// <summary>
         /// Generates the XMLTV file
         /// </summary>
-        public static bool GenerateXmlTv(List<EpgChannel> epg = null)
+        public static bool GenerateXmlTv(List<EpgChannel> epg)
         {
             try
             {
-                //Read the EPG files if needed
-                if (epg == null)
-                {
-                    epg = ReadEpgFromFiles();
-                }
-
-                try
-                {
-                    //Write EPG to XML file
-                    string file = Path.Combine(Settings.EpgFolder, EPGXmlFile);
-                    Logger.InfoFormat("Writing EPG to XML file {0}", file);
-                    XmlHelper.Serialize(epg, file);
-                    Logger.Info("EPG XML file written");
-                }
-                catch (Exception err)
-                {
-                    Logger.Error(err);
-                }
-
-                //Read the channels for the xml file
-                string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                Logger.DebugFormat("Reading channels from XML file {0}", localFile);
-                var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
-                Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
-                
-
-                //Determine if a channel list is present
-                var channelList = ReadChannelList(channels);
-                //Filter the channels based on the channel list, because this is the list we want to use
-                List<Channel> channelsToUse = new List<Channel>();
-                foreach (var channelListItem in channelList)
-                {
-                    var channelToUse = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
-                    if (channelToUse != null)
-                    {
-                        channelToUse.Name = channelListItem.GetName();
-                        channelsToUse.Add(channelToUse);
-                    }
-                }
-
+                var channelsToUse = ReadChannelList();
                 //Generate XMLTV file
                 string xmltvFile = Settings.XmlTvFileName;
                 Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
@@ -379,10 +366,8 @@ namespace GlashartLibrary
             }
         }
 
-        public static List<EpgChannel> DownloadDetails()
+        public static List<EpgChannel> DownloadDetails(List<EpgChannel> epg)
         {
-            var epg = ReadEpgFromFiles();
-
             int succes = 0, failed = 0, percent = 0;
             float total = epg.SelectMany(channel => channel.Programs).Count();
             foreach(var program in epg.SelectMany(channel => channel.Programs))

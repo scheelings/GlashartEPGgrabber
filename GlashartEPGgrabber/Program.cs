@@ -88,11 +88,14 @@ namespace GlashartEPGgrabber
                     GlashartLibrary.Main.DownloadEPGfiles();
                 if (DecompressEPG)
                     GlashartLibrary.Main.DecompressEPGfiles();
-                List<EpgChannel> epgData = null;
-                if (DownloadDetails)
-                    epgData = GlashartLibrary.Main.DownloadDetails();
                 if (XmlTV)
+                {
+                    List<EpgChannel> epgData = GlashartLibrary.Main.ReadEpgFromFiles();
+                    if (DownloadDetails)
+                        epgData = GlashartLibrary.Main.DownloadDetails(epgData);
                     GlashartLibrary.Main.GenerateXmlTv(epgData);
+                }
+                
                 if (ConvertM3U)
                     GlashartLibrary.Main.ConvertM3Ufile();
 
