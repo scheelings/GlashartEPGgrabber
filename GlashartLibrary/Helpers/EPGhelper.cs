@@ -195,10 +195,7 @@ namespace GlashartLibrary.Helpers
         /// <returns></returns>
         private static string GetJsonValue(dynamic value)
         {
-            if (value == null)
-                return null;
-            else
-                return value.ToString();
+            return value == null ? null : value.ToString();
         }
 
         /// <summary>
@@ -229,12 +226,13 @@ namespace GlashartLibrary.Helpers
                 ApplicationLog.WriteDebug("Try to download {0}", url);
                 var data = HttpDownloader.DownloadTextFile(url);
                 ApplicationLog.WriteDebug("Downloaded details: {0}", data);
+                return data;
             }
             catch (Exception)
             {
                 ApplicationLog.WriteDebug("No detailed data found for id {0}");
+                return null;
             }
-            return null;
         }
     }
 }

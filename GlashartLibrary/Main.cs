@@ -321,8 +321,7 @@ namespace GlashartLibrary
         {
             try
             {
-                List<Channel> channels = null;
-                //Read the EPG files
+                //Read the EPG files if needed
                 if (epg == null)
                 {
                     epg = ReadEpgFromFiles();
@@ -342,13 +341,11 @@ namespace GlashartLibrary
                 }
 
                 //Read the channels for the xml file
-                if (channels == null)
-                {
-                    string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                    ApplicationLog.WriteDebug("Reading channels from XML file {0}", localFile);
-                    channels = XmlHelper.Deserialize<List<Channel>>(localFile);
-                    ApplicationLog.WriteDebug("{0} channels found in channels xml file", channels.Count);
-                }
+                string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
+                ApplicationLog.WriteDebug("Reading channels from XML file {0}", localFile);
+                var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
+                ApplicationLog.WriteDebug("{0} channels found in channels xml file", channels.Count);
+                
 
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(channels);
@@ -381,31 +378,35 @@ namespace GlashartLibrary
 
         public static List<EpgChannel> DownloadDetails()
         {
-            int succes = 0, failed = 0;
             var epg = ReadEpgFromFiles();
+
+            int succes = 0, failed = 0, percent = 0;
             float total = epg.SelectMany(channel => channel.Programs).Count();
-            var percent = 0;
-            epg.SelectMany(channel => channel.Programs).AsParallel().ForAll(program =>
+            foreach(var program in epg.SelectMany(channel => channel.Programs))
             {
-                var current = (int)((succes + failed)/total) * 100;
+                //Log percentage of completion
+                var current = (int)(((succes + failed)/total) * 100);
                 if (current != percent)
                 {
                     percent = current;
                     ApplicationLog.WriteInfo("Tried downloading {0}% EPG program details", percent);
                 }
+                //Download string
                 ApplicationLog.WriteDebug("Try to download details for: {0}", program.Id);
                 var details = EPGhelper.DownloadDetails(program.Id);
                 if (string.IsNullOrWhiteSpace(details))
                 {
                     failed++;
-                    return;
+                    continue;
                 }
+                //Parse and update
                 var parsed = JsonConvert.DeserializeObject<EpgDetails>(details);
                 program.Description = parsed.Description;
                 program.Genres = parsed.Genres;
                 ApplicationLog.WriteDebug("Updated program {0}", program.Id);
                 succes++;
-            });
+            }
+
             ApplicationLog.WriteInfo("Succesfully loaded details for {0} programs", succes);
             ApplicationLog.WriteInfo("Failed to load details for {0} programs", failed);
             return epg;
