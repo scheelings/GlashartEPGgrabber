@@ -1,26 +1,27 @@
-﻿Glashart EPG Grabber (by Dennieku)
+﻿Glashart EPG Grabber (by Dennieku & jansaris)
 -------------------------------------------------------
 
 The Glashart EPG Grabber has performs 2 jobs for you:
 1. Generating an M3U file with all IPTV channels
    This job is executed by the program in the following parts:
-   a. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
-   b. Unzipping the index.xhtml.gz file to index.html
-   c. Parsing the index.html to determine the URL of the TV script file to be downloaded (i.e. http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
-   d. Downloading the code.js.gz?1416996339 file
-   e. Unzipping the TV script file to code.js
-   f. Parsing the channels and URL's from the code.js file and generating a channels.xml file
-   g. Generating the M3U file based on channels.xml
+   1. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
+   2. Unzipping the index.xhtml.gz file to index.html
+   3. Parsing the index.html to determine the URL of the TV script file to be downloaded (i.e. http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
+   4. Downloading the code.js.gz?1416996339 file
+   5. Unzipping the TV script file to code.js
+   6. Parsing the channels and URL's from the code.js file and generating a channels.xml file
+   7. Generating the M3U file based on channels.xml
 2. Generating an XMLTV file for all IPTV channels, based on Glashart EPG
    This job is executed by the program in the following parts:
-   a. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
-   b. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
-   c. Generating the XMLTV file
+   1. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
+   2. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
+   3. Generating the XMLTV file
 Some additional features:
-1. Converting a downloaded M3U file into a new m3U file according the ChannelsListFile setting
+3. Converting a downloaded M3U file into a new m3U file according the ChannelsListFile setting
 
 
 This program is a console application which can be executed like below:
+```
 GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscript] [/channels] [/m3u] [/dl-epg] [/unzip-epg] [/xmltv] [/all-m3u] [/all-xmltv] [/all] [/convert-m3u]
 /dl-tvmenu			Download the TV menu web page (http://w.zt6.nl/tvmenu/index.xhtml.gz)
 /unzip-tvmenu			Unzip the downloaded index.xhtml.gz TV menu web page
@@ -39,21 +40,24 @@ GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscr
 /all				Execute all steps: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u /dl-epg /unzip-epg /xmltv
 
 /convert-m3u			Converts a downloaded M3U file to a new M3U file
+```
 
 
 Configuration can be changed in GlashartEPGgrabber.exe.config
-TvMenuURL			URL to the TV menu website on the IPTV network (default: http://w.zt6.nl/tvmenu/)
-EpgURL				URL to the EPG folder in the website on the IPTV network (default: http://w.zt6.nl/epgdata/)
-TvMenuFolder			Local folder to download TV menu files to (default: D:\GlashartEPGgrabber\Data\TvMenu)
-M3UfileName			M3U file name to generate (default: D:\GlashartEPGgrabber\Data\TvMenu\glashart.m3u)
-IgmpToUdp			Convert IGMP to UDP, so igmp:// becomes udp://@ (default: True)
-M3U_ChannelLocationImportance	All channel URLs have a name, like HD, SD, ZTV-HD, etc. This list defines the importance of these URLs. The 1st URL name in the list is found and saved in the M3U file. When this name is not found, the 2nd in the list will be used. When nothing is found the first available URL will be used (default: ztv-hd, ztv-sd, ztv)
-ChannelsListFile		List of channels which is a filter for the M3U file. Only these channels will be saved in the M3U file. Remove this file to save all channels in the M3U file (default: D:\GlashartEPGgrabber\Data\ChannelList.txt)
+Config | Explanation
+TvMenuURL | URL to the TV menu website on the IPTV network (default: http://w.zt6.nl/tvmenu/)
+EpgURL | URL to the EPG folder in the website on the IPTV network (default: http://w.zt6.nl/epgdata/)
+TvMenuFolder | Local folder to download TV menu files to (default: D:\GlashartEPGgrabber\Data\TvMenu)
+M3UfileName | M3U file name to generate (default: D:\GlashartEPGgrabber\Data\TvMenu\glashart.m3u)
+IgmpToUdp | Convert IGMP to UDP, so igmp:// becomes udp://@ (default: True)
+M3U_ChannelLocationImportance | All channel URLs have a name, like HD, SD, ZTV-HD, etc. This list defines the importance of these URLs. The 1st URL name in the list is found and saved in the M3U file. When this name is not found, the 2nd in the list will be used. When nothing is found the first available URL will be used (default: ztv-hd, ztv-sd, ztv)
+ChannelsListFile | List of channels which is a filter for the M3U file. Only these channels will be saved in the M3U file. Remove this file to save all channels in the M3U file (default: D:\GlashartEPGgrabber\Data\ChannelList.txt)
 				Format in this file: Channel number,Orininal Channel name,Optional new channel name
-EpgNumberOfDays			Number of days to download EPG (default: 7)
-EpgFolder			Folder to download EPG files to (default: D:\GlashartEPGgrabber\Data\EPG)
-EpgArchiving			EPG files in the EpgFolder older than x days will be removed (default: 7)
-XmlTvFileName			XMLTV file name to generate (default: D:\GlashartEPGgrabber\Data\guide.xml)
-DownloadedM3UFileName		File name of downloaded M3U which will be converted to a new M3U file
+EpgNumberOfDays | Number of days to download EPG (default: 7)
+EpgFolder | Folder to download EPG files to (default: D:\GlashartEPGgrabber\Data\EPG)
+EpgArchiving | EPG files in the EpgFolder older than x days will be removed (default: 7)
+XmlTvFileName | XMLTV file name to generate (default: D:\GlashartEPGgrabber\Data\guide.xml)
+DownloadedM3UFileName | File name of downloaded M3U which will be converted to a new M3U file
+
 
 Logging can be set in log4net.config
