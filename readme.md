@@ -45,6 +45,7 @@ GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscr
 
 Configuration can be changed in GlashartEPGgrabber.exe.config
 Config | Explanation
+--- | ---
 TvMenuURL | URL to the TV menu website on the IPTV network (default: http://w.zt6.nl/tvmenu/)
 EpgURL | URL to the EPG folder in the website on the IPTV network (default: http://w.zt6.nl/epgdata/)
 TvMenuFolder | Local folder to download TV menu files to (default: D:\GlashartEPGgrabber\Data\TvMenu)
