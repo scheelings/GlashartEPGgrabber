@@ -1,4 +1,5 @@
-﻿# Glashart EPG Grabber (by Dennieku & jansaris)
+﻿# Glashart EPG Grabber 
+﻿## by Dennieku & jansaris
 -------------------------------------------------------
 
 The Glashart EPG Grabber has performs 2 jobs for you:
@@ -71,9 +72,11 @@ GlashartEPGgrabber works on linux with Mono (tested on Ubuntu 14.10 and OpenElec
 
 ### OpenElec
 
-To be able to run the code on OpenElec you will need to create a static compiled linux executable of the application. 
-1. Create a linux executable using mkbundle on your Ubuntu 14.10 machine (~githubrepo/Linux/CreateExecutable.sh)
+To be able to run the code on OpenElec you will need to create a static compiled linux executable of the application.
+
+1. Create a linux executable using mkbundle on your Ubuntu 14.10 machine (~repo/Linux/CreateExecutable.sh)
 2. Copy the following files to your OpenElec Machine:
-* GlashartEPGgrabber (linux executable)
-* libc.so (~githubrepo/Linux/libc.so for x64)
-* GlashartEPGgrabber.ini
+
+  * GlashartEPGgrabber (linux executable)
+  * libc.so (~repo/Linux/libc.so for x64)
+  * GlashartEPGgrabber.ini
