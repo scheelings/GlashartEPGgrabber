@@ -1,6 +1,6 @@
 ﻿# Glashart EPG Grabber 
-﻿## by Dennieku & jansaris
--------------------------------------------------------
+﻿-------------------------------------------------------
+### By Dennieku & jansaris
 
 The Glashart EPG Grabber has performs 2 jobs for you:
 1. Generating an M3U file with all IPTV channels
