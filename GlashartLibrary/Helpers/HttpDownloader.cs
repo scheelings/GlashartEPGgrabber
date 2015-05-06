@@ -51,7 +51,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <returns>File content</returns>
-        public static string DownloadTextFile(string url, Encoding encoding)
+        private static string DownloadTextFile(string url, Encoding encoding)
         {
             byte[] file = DownloadBinaryFile(url);
             return encoding.GetString(file);

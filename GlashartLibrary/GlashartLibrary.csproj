@@ -60,6 +60,7 @@
     <Compile Include="Channel.cs" />
     <Compile Include="ConfigSettings.cs" />
     <Compile Include="EPG.cs" />
+    <Compile Include="Helpers\CachedHttpDownloader.cs" />
     <Compile Include="Helpers\CompressionHelper.cs" />
     <Compile Include="Helpers\EPGhelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
