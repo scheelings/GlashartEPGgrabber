@@ -1,5 +1,4 @@
-﻿# Glashart EPG Grabber 
-﻿-------------------------------------------------------
+# Glashart EPG Grabber 
 ### By Dennieku & jansaris
 
 The Glashart EPG Grabber has performs 2 jobs for you:
