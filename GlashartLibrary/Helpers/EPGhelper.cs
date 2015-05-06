@@ -1,21 +1,27 @@
-﻿using Newtonsoft.Json;
+﻿using GlashartLibrary.IO;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using log4net;
 
 namespace GlashartLibrary.Helpers
 {
-    public sealed class EPGhelper
+    public sealed class EpgHelper
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(EPGhelper));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(EpgHelper));
         private const string EpgFileNameFormat = "epgdata.{datepart}.{daypart}.json.gz";
+        private readonly IHttpDownloader _httpDownloader;
+        private readonly IFileDownloader _fileDownloader;
+
+        public EpgHelper(IHttpDownloader httpDownloader, IFileDownloader fileDownloader)
+        {
+            _httpDownloader = httpDownloader;
+            _fileDownloader = fileDownloader;
+        }
 
         /// <summary>
         /// Downloads the EPG (compressed) files.
@@ -23,7 +29,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="baseUrl">The base URL.</param>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to download</param>
-        public static void DownloadEPGfiles(string baseUrl, string localFolder, int numberOfDays)
+        public void DownloadEPGfiles(string baseUrl, string localFolder, int numberOfDays)
         {
             //EPG url example: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz
             DateTime date = DateTime.Today;
@@ -41,7 +47,7 @@ namespace GlashartLibrary.Helpers
                     //Download the file
                     try
                     {
-                        HttpDownloader.DownloadBinaryFile(url, localFile);
+                        _fileDownloader.DownloadBinaryFile(url, localFile);
                     }
                     catch (Exception err)
                     {
@@ -214,7 +220,7 @@ namespace GlashartLibrary.Helpers
             }
         }
 
-        public static string DownloadDetails(string id)
+        public string DownloadDetails(string id)
         {
             if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
             {
@@ -226,7 +232,7 @@ namespace GlashartLibrary.Helpers
                 var dir = id.Substring(id.Length - 2, 2);
                 var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
                 Logger.DebugFormat("Try to download {0}", url);
-                var data = HttpDownloader.DownloadTextFile(url);
+                var data = _httpDownloader.DownloadString(url);
                 //var data = "{\"id\":\"061079be-1516-4a4d-ad50-ba394557b6ad\",\"name\":\"NOS Journaal / Actueel / herhalingen NOS Journaal / Extra onderwerpen\",\"start\":1431075600,\"end\":1431097200,\"description\":\"Het nieuws van de dag.\",\"genres\":[\"Actualiteit\",\"Info\"],\"disableRestart\":false}";
                 Logger.DebugFormat("Downloaded details: {0}", data);
                 return data;

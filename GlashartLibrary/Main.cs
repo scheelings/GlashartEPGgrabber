@@ -1,11 +1,9 @@
 ﻿using GlashartLibrary.Helpers;
-using GlashartLibrary.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GlashartLibrary.IO;
 using log4net;
 using Newtonsoft.Json;
 
@@ -16,26 +14,48 @@ namespace GlashartLibrary
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Main));
 
         public static ISettings Settings;
+        private readonly CachedHttpDownloader _httpDownloader;
+        private readonly FileDownloader _fileDownloader;
+        private readonly EpgHelper _epghelper;
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
         private const string TvMenuScriptFile = "code.js.gz";
         private const string TvMenuScriptFileDecompressed = "code.js";
         private const string ChannelsXmlFile = "Channels.xml";
-        private const string EPGXmlFile = "EPG.xml";
+
+        public Main(ISettings settings)
+        {
+            Settings = settings;
+            _httpDownloader = new CachedHttpDownloader(settings.EpgFolder);
+            _fileDownloader = new FileDownloader(_httpDownloader);
+            _epghelper = new EpgHelper(_httpDownloader,_fileDownloader);
+        }
+
+        public void Load()
+        {
+            Logger.Info("Load HTTP Cache");
+            _httpDownloader.LoadCache();
+        }
+
+        public void Save()
+        {
+            Logger.Info("Save HTTP Cache");
+            _httpDownloader.SaveCache();
+        }
 
         /// <summary>
         /// Downloads the tv menu file
         /// </summary>
         /// <returns></returns>
-        public static bool DownloadTvMenu()
+        public bool DownloadTvMenu()
         {
             try
             {
-                string url = string.Concat(Settings.TvMenuURL, TvMenuFileName);
-                string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
+                var url = string.Concat(Settings.TvMenuURL, TvMenuFileName);
+                var localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
 
                 Logger.InfoFormat("Downloading TV menu to {0}", localFile);
-                HttpDownloader.DownloadBinaryFile(url, localFile);
+                _fileDownloader.DownloadBinaryFile(url,localFile);
                 Logger.Info("TV menu file downloaded");
 
                 return true;
@@ -51,7 +71,7 @@ namespace GlashartLibrary
         /// Decompresses the tv menu file
         /// </summary>
         /// <returns></returns>
-        public static bool DecompressTvMenu()
+        public bool DecompressTvMenu()
         {
             try
             {
@@ -75,7 +95,7 @@ namespace GlashartLibrary
         /// Downloads the tv menu (java)script file
         /// </summary>
         /// <returns></returns>
-        public static bool DownloadTvMenuScript()
+        public bool DownloadTvMenuScript()
         {
             try
             {
@@ -93,7 +113,7 @@ namespace GlashartLibrary
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
 
                 Logger.InfoFormat("Downloading TV menu script to {0}", localFile);
-                HttpDownloader.DownloadBinaryFile(url, localFile);
+                _fileDownloader.DownloadBinaryFile(url, localFile);
                 Logger.Info("TV menu script file downloaded");
 
                 return true;
@@ -109,7 +129,7 @@ namespace GlashartLibrary
         /// Decompresses the tv menu script file
         /// </summary>
         /// <returns></returns>
-        public static bool DecompressTvMenuScript()
+        public bool DecompressTvMenuScript()
         {
             try
             {
@@ -132,7 +152,7 @@ namespace GlashartLibrary
         /// <summary>
         /// Generates the channel XML file.
         /// </summary>
-        public static List<Channel> GenerateChannelXmlFile()
+        public List<Channel> GenerateChannelXmlFile()
         {
             try
             {
@@ -161,14 +181,14 @@ namespace GlashartLibrary
         /// </summary>
         /// <param name="channels">The channels.</param>
         /// <returns>List of generated channels</returns>
-        public static List<Channel> GenerateM3Ufile(List<Channel> channels = null)
+        public List<Channel> GenerateM3Ufile(List<Channel> channels = null)
         {
             try
             {
-                List<Channel> result = null;
+                List<Channel> result;
 
                 string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                string m3uFile = Settings.M3UfileName;
+                string m3UFile = Settings.M3UfileName;
 
                 //Read the channels for the xml file
                 if (channels == null)
@@ -181,8 +201,8 @@ namespace GlashartLibrary
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(channels);
 
-                Logger.InfoFormat("Generating M3U file {0} based on channels", m3uFile);
-                result = M3UHelper.GenerateM3U(channels, channelList, m3uFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
+                Logger.InfoFormat("Generating M3U file {0} based on channels", m3UFile);
+                result = M3UHelper.GenerateM3U(channels, channelList, m3UFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
                 Logger.Info("M3U file generated");
 
                 return result;
@@ -196,23 +216,22 @@ namespace GlashartLibrary
         /// <summary>
         /// Converts the M3U file.
         /// </summary>
-        public static bool ConvertM3Ufile()
+        public bool ConvertM3Ufile()
         {
             try
             {
-                string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                string m3uFile = Settings.M3UfileName;
-                string downloadedM3uFile = Settings.DownloadedM3UFileName;
+                var m3UFile = Settings.M3UfileName;
+                var downloadedM3UFile = Settings.DownloadedM3UFileName;
 
-                Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3uFile);
-                var channels = M3UHelper.ParseM3U(downloadedM3uFile);
+                Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3UFile);
+                var channels = M3UHelper.ParseM3U(downloadedM3UFile);
                 Logger.Info("Downloaded M3U file parsed");
 
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(null);
 
-                Logger.InfoFormat("Generating M3U file {0} based on parsed M3U file", m3uFile);
-                M3UHelper.GenerateM3U(channels, channelList, m3uFile);
+                Logger.InfoFormat("Generating M3U file {0} based on parsed M3U file", m3UFile);
+                M3UHelper.GenerateM3U(channels, channelList, m3UFile);
                 Logger.Info("M3U file generated");
 
                 return true;
@@ -229,7 +248,7 @@ namespace GlashartLibrary
         /// </summary>
         /// <param name="availableChannels">The available channels.</param>
         /// <returns></returns>
-        private static List<ChannelListItem> ReadChannelList(List<Channel> availableChannels)
+        private List<ChannelListItem> ReadChannelList(List<Channel> availableChannels)
         {
             var result = new List<ChannelListItem>();
 
@@ -261,14 +280,14 @@ namespace GlashartLibrary
         /// <summary>
         /// Downloads the EPG files
         /// </summary>
-        public static bool DownloadEPGfiles()
+        public bool DownloadEpGfiles()
         {
             try
             {
                 try
                 {
                     Logger.DebugFormat("Cleanup EPG files from folder {0} (older than {1} days)", Settings.EpgFolder, Settings.EpgArchiving);
-                    EPGhelper.CleanUpEPG(Settings.EpgFolder, Settings.EpgArchiving);
+                    EpgHelper.CleanUpEPG(Settings.EpgFolder, Settings.EpgArchiving);
                     Logger.Debug("EPG files cleaned up");
                 }
                 catch (Exception err)
@@ -277,7 +296,7 @@ namespace GlashartLibrary
                 }
 
                 Logger.InfoFormat("Downloading EPG files to folder {0}", Settings.EpgFolder);
-                EPGhelper.DownloadEPGfiles(Settings.EpgURL, Settings.EpgFolder, Settings.EpgNumberOfDays);
+                _epghelper.DownloadEPGfiles(Settings.EpgURL, Settings.EpgFolder, Settings.EpgNumberOfDays);
                 Logger.Info("EPG files downloaded");
 
                 return true;
@@ -292,32 +311,29 @@ namespace GlashartLibrary
         /// <summary>
         /// Decompresses the EPG files
         /// </summary>
-        public static bool DecompressEPGfiles()
+        public void DecompressEPGfiles()
         {
             try
             {
                 Logger.InfoFormat("Decompressing EPG files in folder {0}", Settings.EpgFolder);
-                EPGhelper.DecompressEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
+                EpgHelper.DecompressEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
                 Logger.Info("EPG files decompressed");
-
-                return true;
             }
             catch (Exception err)
             {
                 Logger.Error(err);
-                return false;
             }
         }
 
-        public static List<EpgChannel> ReadEpgFromFiles()
+        public List<EpgChannel> ReadEpgFromFiles()
         {
             Logger.InfoFormat("Reading EPG files from folder {0}", Settings.EpgFolder);
-            var epg = EPGhelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
+            var epg = EpgHelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
             Logger.Info("EPG files read");
             return epg;
         }
 
-        public static List<Channel> ReadChannelList()
+        public List<Channel> ReadChannelList()
         {
             //Read the channels for the xml file
             string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
@@ -329,7 +345,7 @@ namespace GlashartLibrary
             //Determine if a channel list is present
             var channelList = ReadChannelList(channels);
             //Filter the channels based on the channel list, because this is the list we want to use
-            List<Channel> channelsToUse = new List<Channel>();
+            var channelsToUse = new List<Channel>();
             foreach (var channelListItem in channelList)
             {
                 var channelToUse = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
@@ -346,7 +362,7 @@ namespace GlashartLibrary
         /// <summary>
         /// Generates the XMLTV file
         /// </summary>
-        public static bool GenerateXmlTv(List<EpgChannel> epg, List<Channel> channelsToUse)
+        public void GenerateXmlTv(List<EpgChannel> epg, List<Channel> channelsToUse)
         {
             try
             {
@@ -355,17 +371,14 @@ namespace GlashartLibrary
                 Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
                 XmlTvHelper.GenerateXmlTv(epg, channelsToUse, xmltvFile);
                 Logger.Info("XMLTV file generated");
-
-                return true;
             }
             catch (Exception err)
             {
                 Logger.Error(err);
-                return false;
             }
         }
 
-        public static List<EpgChannel> DownloadDetails(List<EpgChannel> epg, List<Channel> channelsToUse)
+        public List<EpgChannel> DownloadDetails(List<EpgChannel> epg, List<Channel> channelsToUse)
         {
             int succes = 0, failed = 0, percent = 0;
             var list = epg.AsEnumerable();
@@ -383,11 +396,11 @@ namespace GlashartLibrary
                 if (current != percent)
                 {
                     percent = current;
-                    Logger.InfoFormat("Tried downloading {0}% EPG program details", percent);
+                    Logger.InfoFormat("Downloading {0}% EPG program details", percent);
                 }
                 //Download string
                 Logger.DebugFormat("Try to download details for: {0}", program.Id);
-                var details = EPGhelper.DownloadDetails(program.Id);
+                var details = _epghelper.DownloadDetails(program.Id);
                 if (string.IsNullOrWhiteSpace(details))
                 {
                     failed++;

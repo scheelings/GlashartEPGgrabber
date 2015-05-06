@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.IO.Compression;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.GZip;
 using log4net;
 
-namespace GlashartLibrary.Helpers
+namespace GlashartLibrary.IO
 {
     public sealed class CompressionHelper
     {
@@ -15,8 +14,8 @@ namespace GlashartLibrary.Helpers
         /// Decompresses the specified compressed file using SharpZipLib
         /// MkBundle doesn't support GZipStream
         /// </summary>
-        /// <param name="compressedFile">The compressed file.</param>
-        /// <param name="uncompressedFile">The uncompressed file.</param>
+        /// <param name="gzipFileName">The compressed file.</param>
+        /// <param name="filename">The uncompressed file.</param>
         public static bool Decompress(string gzipFileName, string filename)
         {
             try

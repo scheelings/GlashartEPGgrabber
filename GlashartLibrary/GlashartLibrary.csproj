@@ -60,16 +60,18 @@
     <Compile Include="Channel.cs" />
     <Compile Include="ConfigSettings.cs" />
     <Compile Include="EPG.cs" />
-    <Compile Include="Helpers\CachedHttpDownloader.cs" />
-    <Compile Include="Helpers\CompressionHelper.cs" />
     <Compile Include="Helpers\EPGhelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
-    <Compile Include="Helpers\HttpDownloader.cs" />
     <Compile Include="Helpers\JavascriptHelper.cs" />
     <Compile Include="Helpers\M3UHelper.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Helpers\XmlTvHelper.cs" />
+    <Compile Include="IO\CachedHttpDownloader.cs" />
+    <Compile Include="IO\CompressionHelper.cs" />
+    <Compile Include="IO\FileDownloader.cs" />
+    <Compile Include="IO\IFileDownloader.cs" />
+    <Compile Include="IO\IHttpDownloader.cs" />
     <Compile Include="ISettings.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="Main.cs" />
@@ -90,6 +92,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

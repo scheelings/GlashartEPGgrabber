@@ -70,35 +70,38 @@ namespace GlashartEPGgrabber
             }
             else
             {
-                GlashartLibrary.Main.Settings = LoadSettings();
+                var main = new Main(LoadSettings());
+                main.Load();
                 if (DownloadTvMenu)
-                    GlashartLibrary.Main.DownloadTvMenu();
+                    main.DownloadTvMenu();
                 if (DecompressTvMenu)
-                    GlashartLibrary.Main.DecompressTvMenu();
+                    main.DecompressTvMenu();
                 if (DownloadTvMenuScript)
-                    GlashartLibrary.Main.DownloadTvMenuScript();
+                    main.DownloadTvMenuScript();
                 if (DecompressTvMenuScript)
-                    GlashartLibrary.Main.DecompressTvMenuScript();
+                    main.DecompressTvMenuScript();
                 List<Channel> channels = null;
                 if (GenerateChannelsFile)
-                    channels = GlashartLibrary.Main.GenerateChannelXmlFile();
+                    channels = main.GenerateChannelXmlFile();
                 if (GenerateM3Ufile)
-                    channels = GlashartLibrary.Main.GenerateM3Ufile(channels);
+                    channels = main.GenerateM3Ufile(channels);
                 if (DownloadEPG)
-                    GlashartLibrary.Main.DownloadEPGfiles();
+                    main.DownloadEpGfiles();
                 if (DecompressEPG)
-                    GlashartLibrary.Main.DecompressEPGfiles();
+                    main.DecompressEPGfiles();
                 if (XmlTV)
                 {
-                    var epgData = GlashartLibrary.Main.ReadEpgFromFiles();
-                    channels = GlashartLibrary.Main.ReadChannelList();
+                    var epgData = main.ReadEpgFromFiles();
+                    channels = main.ReadChannelList();
                     if (DownloadDetails)
-                        epgData = GlashartLibrary.Main.DownloadDetails(epgData, channels);
-                    GlashartLibrary.Main.GenerateXmlTv(epgData, channels);
+                        epgData = main.DownloadDetails(epgData, channels);
+                    main.GenerateXmlTv(epgData, channels);
                 }
                 
                 if (ConvertM3U)
-                    GlashartLibrary.Main.ConvertM3Ufile();
+                    main.ConvertM3Ufile();
+
+                main.Save();
 
                 ExitApplication();
             }
