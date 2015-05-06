@@ -43,5 +43,8 @@
     <Setting Name="DownloadedM3UFileName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\glashart-downloaded.m3u</Value>
     </Setting>
+    <Setting Name="IconFolder" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data\Icon</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

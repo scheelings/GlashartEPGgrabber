@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using log4net;
 
-namespace GlashartLibrary
+namespace GlashartLibrary.Settings
 {
     public class IniSettings : ISettings
     {
@@ -12,17 +12,18 @@ namespace GlashartLibrary
 
         public string TvMenuURL { get; private set; }
         public string EpgURL { get; private set; }
-        public string TvMenuFolder { get; set; }
-        public string M3UfileName { get; set; }
-        public bool IgmpToUdp { get; set; }
-        public List<string> M3U_ChannelLocationImportance { get; set; }
-        public string ChannelsListFile { get; set; }
-        public int EpgNumberOfDays { get; set; }
-        public string EpgFolder { get; set; }
-        public int EpgArchiving { get; set; }
-        public string XmlTvFileName { get; set; }
-        public string DownloadedM3UFileName { get; set; }
-        public string LogLevel { get; set; }
+        public string TvMenuFolder { get; private set; }
+        public string M3UfileName { get; private set; }
+        public bool IgmpToUdp { get; private set; }
+        public List<string> M3U_ChannelLocationImportance { get; private set; }
+        public string ChannelsListFile { get; private set; }
+        public int EpgNumberOfDays { get; private set; }
+        public string EpgFolder { get; private set; }
+        public int EpgArchiving { get; private set; }
+        public string XmlTvFileName { get; private set; }
+        public string DownloadedM3UFileName { get; private set; }
+        public string IconFolder { get; private set; }
+        public string LogLevel { get; private set; }
 
         public void Load()
         {
@@ -98,6 +99,9 @@ namespace GlashartLibrary
                     break;
                 case "LogLevel":
                     LogLevel = value;
+                    break;
+                case "IconFolder":
+                    IconFolder = value;
                     break;
                 
                 default:

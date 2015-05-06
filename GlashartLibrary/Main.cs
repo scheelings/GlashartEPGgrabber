@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using GlashartLibrary.IO;
+using GlashartLibrary.Settings;
 using log4net;
 using Newtonsoft.Json;
 

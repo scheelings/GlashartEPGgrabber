@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GlashartLibrary
+namespace GlashartLibrary.Settings
 {
     public interface ISettings
     {
@@ -16,5 +16,6 @@ namespace GlashartLibrary
         int EpgArchiving { get; }
         string XmlTvFileName { get; }
         string DownloadedM3UFileName { get; }
+        string IconFolder { get; }
     }
 }

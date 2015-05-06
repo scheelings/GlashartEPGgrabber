@@ -115,7 +115,7 @@ namespace GlashartLibrary.Helpers
                     Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
                     continue;
                 }
-                if (string.IsNullOrWhiteSpace(channel.URL))
+                if (string.IsNullOrWhiteSpace(channel.Url))
                 {
                     Logger.DebugFormat("M3U generator ignores {0}, because no URL present", channel.Name);
                     continue;
@@ -124,7 +124,7 @@ namespace GlashartLibrary.Helpers
                 //Add line for channel
                 result.Add(channel);
                 lines.Add(string.Format("#EXTINF:{0},{1}", channelListItem.Number, channelListItem.GetName()));
-                lines.Add(channel.URL);
+                lines.Add(channel.Url);
             }
 
             //Write lines to file
@@ -166,7 +166,7 @@ namespace GlashartLibrary.Helpers
                 else if (ChannelUrlStarts.Any(e => line.StartsWith(e, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     //Channel URL
-                    result.Last().URL = line.Trim();
+                    result.Last().Url = line.Trim();
                 }
             }
 

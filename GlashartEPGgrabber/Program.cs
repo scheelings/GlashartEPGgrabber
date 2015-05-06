@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using GlashartLibrary.Settings;
 using log4net;
 using Microsoft.SqlServer.Server;
 

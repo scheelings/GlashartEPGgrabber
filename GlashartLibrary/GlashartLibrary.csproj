@@ -58,7 +58,8 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channel.cs" />
-    <Compile Include="ConfigSettings.cs" />
+    <Compile Include="Settings\ConfigSettings.cs" />
+    <Compile Include="Settings\IniSettings.cs" />
     <Compile Include="EPG.cs" />
     <Compile Include="Helpers\EPGhelper.cs" />
     <Compile Include="Helpers\HtmlHelper.cs" />
@@ -72,7 +73,6 @@
     <Compile Include="IO\FileDownloader.cs" />
     <Compile Include="IO\IFileDownloader.cs" />
     <Compile Include="IO\IHttpDownloader.cs" />
-    <Compile Include="ISettings.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -81,7 +81,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="IniSettings.cs" />
+    <Compile Include="Settings\ISettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
