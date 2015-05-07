@@ -16,6 +16,7 @@ namespace GlashartLibrary
 
         public static ISettings Settings;
         private readonly IDownloader _downloader;
+        private readonly IGenreTranslator _genreTranslator;
         private readonly EpgHelper _epghelper;
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
@@ -23,10 +24,11 @@ namespace GlashartLibrary
         private const string TvMenuScriptFileDecompressed = "code.js";
         private const string ChannelsXmlFile = "Channels.xml";
 
-        public Main(ISettings settings, IDownloader downloader)
+        public Main(ISettings settings, IDownloader downloader, IGenreTranslator genreTranslator)
         {
             Settings = settings;
             _downloader = downloader;
+            _genreTranslator = genreTranslator;
             _epghelper = new EpgHelper(downloader);
         }
 
@@ -356,7 +358,7 @@ namespace GlashartLibrary
 
         public List<EpgChannel> DownloadDetails(List<EpgChannel> epg, List<Channel> channelsToUse)
         {
-            int succes = 0, failed = 0, percent = 0;
+            
             var list = epg.AsEnumerable();
             //If a channel list is given, filter the epg
             if (channelsToUse.Any())
@@ -365,10 +367,19 @@ namespace GlashartLibrary
             }
             var programs = list.SelectMany(channel => channel.Programs).ToList();
             //Loop over all the programs and try to load the details
-            foreach (var program in programs)
+            DownloadDetails(programs);
+            TranslateProgramGenres(programs.Where(p => p.Genres != null));
+            
+            return epg;
+        }
+
+        private void DownloadDetails(IReadOnlyCollection<EpgProgram> list)
+        {
+            int succes = 0, failed = 0, percent = 0;
+            foreach (var program in list)
             {
                 //Log percentage of completion
-                var current = (int)(((succes + failed)/(float)programs.Count) * 100);
+                var current = (int)(((succes + failed) / (float)list.Count) * 100);
                 if (current != percent)
                 {
                     percent = current;
@@ -385,14 +396,32 @@ namespace GlashartLibrary
                 //Parse and update
                 var parsed = JsonConvert.DeserializeObject<EpgDetails>(details);
                 program.Description = parsed.Description;
-                program.Genres = parsed.Genres;
+                if (parsed.Genres != null && parsed.Genres.Any())
+                {
+                    program.Genres = parsed.Genres.Select(g => new EpgGenre { Genre = g, Language = "nl" }).ToList();
+                }
                 Logger.DebugFormat("Updated program {0}", program.Id);
                 succes++;
             }
 
             Logger.InfoFormat("Succesfully loaded details for {0} programs", succes);
             Logger.InfoFormat("Failed to load details for {0} programs", failed);
-            return epg;
+        }
+
+        private void TranslateProgramGenres(IEnumerable<EpgProgram> programs)
+        {
+            if (_genreTranslator == null)
+            {
+                Logger.Warn("No translator given, ignore Genre translation");
+                return;
+            }
+
+            foreach (var program in programs)
+            {
+                var newGenres = _genreTranslator.Translate(program.Genres);
+                Logger.DebugFormat("Translated {0} genres for {1}", newGenres.Count, program.Id);
+                program.Genres.AddRange(newGenres);
+            }
         }
     }
 }

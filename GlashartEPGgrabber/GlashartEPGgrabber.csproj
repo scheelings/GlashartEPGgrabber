@@ -58,6 +58,9 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Data\EpgGenres.tvh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="GlashartEPGgrabber.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

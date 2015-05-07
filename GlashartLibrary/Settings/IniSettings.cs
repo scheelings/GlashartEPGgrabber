@@ -24,16 +24,19 @@ namespace GlashartLibrary.Settings
         public string IconFolder { get { return Path.Combine(DataFolder, "Icons"); } }
 
         public string XmlTvFile { get { return Path.Combine(DataFolder, XmlTvFileName); } }
-        public string XmlTvFileName { get; set; }
+        private string XmlTvFileName { get; set; }
 
         public string DownloadedM3UFile { get { return Path.Combine(TvMenuFolder, DownloadedM3UFileName); } }
-        public string DownloadedM3UFileName { get; private set; }
+        private string DownloadedM3UFileName { get; set; }
+
+        public string TvhGenreTranslationsFile { get { return Path.Combine(DataFolder, TvhGenreTranslationsFileName); } }
+        private string TvhGenreTranslationsFileName { get; set; }
 
         public string ChannelsListFile { get { return Path.Combine(TvMenuFolder, ChannelsListFileName); } }
-        public string ChannelsListFileName { get; private set; }
+        private string ChannelsListFileName { get; set; }
 
         public string M3UFile { get { return Path.Combine(TvMenuFolder, M3UFileName); } }
-        public string M3UFileName { get; private set; }
+        private string M3UFileName { get; set; }
 
         public int EpgArchiving { get; private set; }
         public string LogLevel { get; private set; }
@@ -110,7 +113,9 @@ namespace GlashartLibrary.Settings
                 case "LogLevel":
                     LogLevel = value;
                     break;
-                
+                case "TvhGenreTranslationsFileName":
+                    TvhGenreTranslationsFileName = value;
+                    break;
                 default:
                     Logger.WarnFormat("Unknown configuration key: {0}", key);
                     return;

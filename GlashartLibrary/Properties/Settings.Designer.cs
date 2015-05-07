@@ -55,7 +55,7 @@ namespace GlashartLibrary.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\TvMenu\\glashart.m3u")]
         public string M3UfileName {
             get {
-                return ((string)(this["M3UFileName"]));
+                return ((string)(this["M3UfileName"]));
             }
         }
         
@@ -149,6 +149,15 @@ namespace GlashartLibrary.Properties {
         public string DataFolder {
             get {
                 return ((string)(this["DataFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\EpgGenres.tvh")]
+        public string TvhGenreTranslationsFile {
+            get {
+                return ((string)(this["TvhGenreTranslationsFile"]));
             }
         }
     }

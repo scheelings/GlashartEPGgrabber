@@ -36,7 +36,7 @@ namespace GlashartLibrary.Helpers
         private static XmlNode GenerateRoot()
         {
             var node = AppendNode(xml, "tv");
-            AppendAttribute(node, "generator-info-name", "GlashartEPGgrabber (by Dennieku)");
+            AppendAttribute(node, "generator-info-name", "GlashartEPGgrabber (by Dennieku & jansaris)");
             return node;
         }
 
@@ -98,8 +98,8 @@ namespace GlashartLibrary.Helpers
                         {
                             foreach (var genre in prog.Genres)
                             {
-                                var categoryNode = AppendNode(progNode, "category", genre);
-                                AppendAttribute(categoryNode, "lang", "nl");
+                                var categoryNode = AppendNode(progNode, "category", genre.Genre);
+                                AppendAttribute(categoryNode, "lang", genre.Language);
                             }
                         }
                         //TODO: add other epg info

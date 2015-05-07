@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using GlashartLibrary.Helpers;
 using GlashartLibrary.IO;
 using GlashartLibrary.Settings;
 using log4net;
@@ -114,8 +115,20 @@ namespace GlashartEPGgrabber
             _cachedWebDownloader.LoadCache();
             var fileDownloader = new FileDownloader(_webDownloader);
             var downloader = new Downloader(_cachedWebDownloader, fileDownloader);
+            var translator = GetTranslator(settings);
+            return new Main(settings, downloader, translator);
+        }
 
-            return new Main(settings, downloader);
+        private static IGenreTranslator GetTranslator(ISettings settings)
+        {
+            IGenreTranslator translator = null;
+            if (!string.IsNullOrWhiteSpace(settings.TvhGenreTranslationsFile))
+            {
+                var tvhTranslator = new TvhGenreTranslator();
+                tvhTranslator.Load(settings.TvhGenreTranslationsFile);
+                translator = tvhTranslator;
+            }
+            return translator;
         }
 
         private static void Teardown()

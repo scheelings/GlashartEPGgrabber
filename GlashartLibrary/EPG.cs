@@ -24,7 +24,7 @@ namespace GlashartLibrary
         public DateTime End { get; set; }
         public string OtherData { get; set; }
         public string Description { get; set; }
-        public List<string> Genres { get; set; }
+        public List<EpgGenre> Genres { get; set; }
         //TODO: more info to read from Glashart EPG
 
         /// <summary>
@@ -70,6 +70,12 @@ namespace GlashartLibrary
         {
             return string.Format("{0} / {1}  {2}", Start.ToString("dd-MM-yy HH:mm"), End.ToString("dd-MM-yy HH:mm"), Name);
         }
+    }
+
+    public class EpgGenre
+    {
+        public string Language { get; set; }
+        public string Genre { get; set; }
     }
 
     public class EpgDetails

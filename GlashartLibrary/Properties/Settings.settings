@@ -49,5 +49,8 @@
     <Setting Name="DataFolder" Type="System.String" Scope="Application">
       <Value Profile="(Default)">D:\GlashartEPGgrabber\Data</Value>
     </Setting>
+    <Setting Name="TvhGenreTranslationsFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\EpgGenres.tvh</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
