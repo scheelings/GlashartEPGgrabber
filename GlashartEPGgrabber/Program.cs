@@ -2,19 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using GlashartLibrary.IO;
 using GlashartLibrary.Settings;
 using log4net;
-using Microsoft.SqlServer.Server;
 
 namespace GlashartEPGgrabber
 {
     public class Program
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Program));
+
+        private static IWebDownloader _webDownloader = new HttpWebDownloader();
 
         private const string CommandLineArgument_DownloadTvMenu = "/dl-tvmenu";
         private const string CommandLineArgument_DecompressTvMenu = "/unzip-tvmenu";
@@ -71,8 +70,7 @@ namespace GlashartEPGgrabber
             }
             else
             {
-                var main = new Main(LoadSettings());
-                main.Load();
+                var main = Initialize();
                 if (DownloadTvMenu)
                     main.DownloadTvMenu();
                 if (DecompressTvMenu)
@@ -102,9 +100,29 @@ namespace GlashartEPGgrabber
                 if (ConvertM3U)
                     main.ConvertM3Ufile();
 
-                main.Save();
-
+                Teardown();
                 ExitApplication();
+            }
+        }
+
+        private static CachedWebDownloader _cachedWebDownloader;
+
+        private static Main Initialize()
+        {
+            var settings = LoadSettings();
+            _cachedWebDownloader = new CachedWebDownloader(settings.DataFolder, _webDownloader);
+            _cachedWebDownloader.LoadCache();
+            var fileDownloader = new FileDownloader(_webDownloader);
+            var downloader = new Downloader(_cachedWebDownloader, fileDownloader);
+
+            return new Main(settings, downloader);
+        }
+
+        private static void Teardown()
+        {
+            if (_cachedWebDownloader != null)
+            {
+                _cachedWebDownloader.SaveCache();
             }
         }
 
@@ -222,6 +240,10 @@ namespace GlashartEPGgrabber
                 else if (arg.Trim().Equals(CommandLineArgument_IniSettings))
                 {
                     IniSettings = true;
+                }
+                else if (arg.Trim().Equals("/no-iptv"))
+                {
+                    _webDownloader = new NullWebDownloader();
                 }
             }
         }

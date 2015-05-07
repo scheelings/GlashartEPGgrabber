@@ -6,11 +6,11 @@ namespace GlashartLibrary.IO
     public class FileDownloader : IFileDownloader
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(FileDownloader));
-        private readonly IHttpDownloader _httpDownloader;
+        private readonly IWebDownloader _webDownloader;
 
-        public FileDownloader(IHttpDownloader httpDownloader)
+        public FileDownloader(IWebDownloader webDownloader)
         {
-            _httpDownloader = httpDownloader;
+            _webDownloader = webDownloader;
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace GlashartLibrary.IO
         public void DownloadBinaryFile(string url, string localFile)
         {
             EnsureDirectoryExist(localFile);
-            var content = _httpDownloader.DownloadBinary(url);
+            var content = _webDownloader.DownloadBinary(url);
             var file = File.OpenWrite(localFile);
             file.Write(content, 0, content.Length);
             file.Close();

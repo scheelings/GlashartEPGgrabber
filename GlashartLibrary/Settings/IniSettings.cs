@@ -12,17 +12,30 @@ namespace GlashartLibrary.Settings
 
         public string TvMenuURL { get; private set; }
         public string EpgURL { get; private set; }
-        public string TvMenuFolder { get; private set; }
-        public string M3UfileName { get; private set; }
+        
         public bool IgmpToUdp { get; private set; }
         public List<string> M3U_ChannelLocationImportance { get; private set; }
-        public string ChannelsListFile { get; private set; }
+
         public int EpgNumberOfDays { get; private set; }
-        public string EpgFolder { get; private set; }
-        public int EpgArchiving { get; private set; }
-        public string XmlTvFileName { get; private set; }
+
+        public string DataFolder { get; private set; }
+        public string TvMenuFolder { get { return Path.Combine(DataFolder, "TvMenu"); } }
+        public string EpgFolder { get { return Path.Combine(DataFolder, "Epg"); } }
+        public string IconFolder { get { return Path.Combine(DataFolder, "Icons"); } }
+
+        public string XmlTvFile { get { return Path.Combine(DataFolder, XmlTvFileName); } }
+        public string XmlTvFileName { get; set; }
+
+        public string DownloadedM3UFile { get { return Path.Combine(TvMenuFolder, DownloadedM3UFileName); } }
         public string DownloadedM3UFileName { get; private set; }
-        public string IconFolder { get; private set; }
+
+        public string ChannelsListFile { get { return Path.Combine(TvMenuFolder, ChannelsListFileName); } }
+        public string ChannelsListFileName { get; private set; }
+
+        public string M3UFile { get { return Path.Combine(TvMenuFolder, M3UFileName); } }
+        public string M3UFileName { get; private set; }
+
+        public int EpgArchiving { get; private set; }
         public string LogLevel { get; private set; }
 
         public void Load()
@@ -67,11 +80,8 @@ namespace GlashartLibrary.Settings
                 case "EpgURL":
                     EpgURL = value;
                     break;
-                case "TvMenuFolder":
-                    TvMenuFolder = value;
-                    break;
-                case "M3UfileName":
-                    M3UfileName = value;
+                case "M3UFileName":
+                    M3UFileName = value;
                     break;
                 case "IgmpToUdp":
                     IgmpToUdp = bool.Parse(value);
@@ -79,14 +89,14 @@ namespace GlashartLibrary.Settings
                 case "M3U_ChannelLocationImportance":
                     M3U_ChannelLocationImportance = value.Split(';').ToList();
                     break;
-                case "ChannelsListFile":
-                    ChannelsListFile = value;
+                case "ChannelsListFileName":
+                    ChannelsListFileName = value;
                     break;
                 case "EpgNumberOfDays":
                     EpgNumberOfDays = int.Parse(value);
                     break;
-                case "EpgFolder":
-                    EpgFolder = value;
+                case "DataFolder":
+                    DataFolder = value;
                     break;
                 case "EpgArchiving":
                     EpgArchiving = int.Parse(value);
@@ -99,9 +109,6 @@ namespace GlashartLibrary.Settings
                     break;
                 case "LogLevel":
                     LogLevel = value;
-                    break;
-                case "IconFolder":
-                    IconFolder = value;
                     break;
                 
                 default:

@@ -15,8 +15,7 @@ namespace GlashartLibrary
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Main));
 
         public static ISettings Settings;
-        private readonly CachedHttpDownloader _httpDownloader;
-        private readonly FileDownloader _fileDownloader;
+        private readonly IDownloader _downloader;
         private readonly EpgHelper _epghelper;
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
@@ -24,24 +23,11 @@ namespace GlashartLibrary
         private const string TvMenuScriptFileDecompressed = "code.js";
         private const string ChannelsXmlFile = "Channels.xml";
 
-        public Main(ISettings settings)
+        public Main(ISettings settings, IDownloader downloader)
         {
             Settings = settings;
-            _httpDownloader = new CachedHttpDownloader(settings.EpgFolder);
-            _fileDownloader = new FileDownloader(_httpDownloader);
-            _epghelper = new EpgHelper(_httpDownloader,_fileDownloader);
-        }
-
-        public void Load()
-        {
-            Logger.Info("Load HTTP Cache");
-            _httpDownloader.LoadCache();
-        }
-
-        public void Save()
-        {
-            Logger.Info("Save HTTP Cache");
-            _httpDownloader.SaveCache();
+            _downloader = downloader;
+            _epghelper = new EpgHelper(downloader);
         }
 
         /// <summary>
@@ -56,7 +42,7 @@ namespace GlashartLibrary
                 var localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
 
                 Logger.InfoFormat("Downloading TV menu to {0}", localFile);
-                _fileDownloader.DownloadBinaryFile(url,localFile);
+                _downloader.DownloadBinaryFile(url,localFile);
                 Logger.Info("TV menu file downloaded");
 
                 return true;
@@ -114,7 +100,7 @@ namespace GlashartLibrary
                 string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
 
                 Logger.InfoFormat("Downloading TV menu script to {0}", localFile);
-                _fileDownloader.DownloadBinaryFile(url, localFile);
+                _downloader.DownloadBinaryFile(url, localFile);
                 Logger.Info("TV menu script file downloaded");
 
                 return true;
@@ -130,7 +116,7 @@ namespace GlashartLibrary
         /// Decompresses the tv menu script file
         /// </summary>
         /// <returns></returns>
-        public bool DecompressTvMenuScript()
+        public void DecompressTvMenuScript()
         {
             try
             {
@@ -140,13 +126,10 @@ namespace GlashartLibrary
                 Logger.InfoFormat("Uncompressing TV menu script file to {0}", localHtmlFile);
                 CompressionHelper.Decompress(localFile, localHtmlFile);
                 Logger.Info("TV menu script file uncompressed");
-
-                return true;
             }
             catch (Exception err)
             {
                 Logger.Error(err);
-                return false;
             }
         }
 
@@ -186,10 +169,8 @@ namespace GlashartLibrary
         {
             try
             {
-                List<Channel> result;
-
-                string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                string m3UFile = Settings.M3UfileName;
+                var localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
+                var m3UFile = Settings.M3UFile;
 
                 //Read the channels for the xml file
                 if (channels == null)
@@ -203,7 +184,7 @@ namespace GlashartLibrary
                 var channelList = ReadChannelList(channels);
 
                 Logger.InfoFormat("Generating M3U file {0} based on channels", m3UFile);
-                result = M3UHelper.GenerateM3U(channels, channelList, m3UFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
+                var result = M3UHelper.GenerateM3U(channels, channelList, m3UFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
                 Logger.Info("M3U file generated");
 
                 return result;
@@ -214,15 +195,16 @@ namespace GlashartLibrary
                 return null;
             }
         }
+
         /// <summary>
         /// Converts the M3U file.
         /// </summary>
-        public bool ConvertM3Ufile()
+        public void ConvertM3Ufile()
         {
             try
             {
-                var m3UFile = Settings.M3UfileName;
-                var downloadedM3UFile = Settings.DownloadedM3UFileName;
+                var m3UFile = Settings.M3UFile;
+                var downloadedM3UFile = Settings.DownloadedM3UFile;
 
                 Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3UFile);
                 var channels = M3UHelper.ParseM3U(downloadedM3UFile);
@@ -234,13 +216,10 @@ namespace GlashartLibrary
                 Logger.InfoFormat("Generating M3U file {0} based on parsed M3U file", m3UFile);
                 M3UHelper.GenerateM3U(channels, channelList, m3UFile);
                 Logger.Info("M3U file generated");
-
-                return true;
             }
             catch (Exception err)
             {
                 Logger.Error(err);
-                return false;
             }
         }
 
@@ -259,11 +238,10 @@ namespace GlashartLibrary
 
             if (File.Exists(fileName))
             {
-                foreach (string line in File.ReadLines(fileName))
+                foreach (var line in File.ReadLines(fileName))
                 {
                     var channel = ChannelListItem.Parse(line);
-                    if (channel != null)
-                        result.Add(channel);
+                    if (channel != null) result.Add(channel);
                 }
             }
 
@@ -281,7 +259,7 @@ namespace GlashartLibrary
         /// <summary>
         /// Downloads the EPG files
         /// </summary>
-        public bool DownloadEpGfiles()
+        public void DownloadEpGfiles()
         {
             try
             {
@@ -299,13 +277,10 @@ namespace GlashartLibrary
                 Logger.InfoFormat("Downloading EPG files to folder {0}", Settings.EpgFolder);
                 _epghelper.DownloadEPGfiles(Settings.EpgURL, Settings.EpgFolder, Settings.EpgNumberOfDays);
                 Logger.Info("EPG files downloaded");
-
-                return true;
             }
             catch (Exception err)
             {
                 Logger.Error(err);
-                return false;
             }
         }
 
@@ -368,7 +343,7 @@ namespace GlashartLibrary
             try
             {
                 //Generate XMLTV file
-                string xmltvFile = Settings.XmlTvFileName;
+                string xmltvFile = Settings.XmlTvFile;
                 Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
                 XmlTvHelper.GenerateXmlTv(epg, channelsToUse, xmltvFile);
                 Logger.Info("XMLTV file generated");

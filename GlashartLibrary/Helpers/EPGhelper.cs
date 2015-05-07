@@ -14,13 +14,11 @@ namespace GlashartLibrary.Helpers
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(EpgHelper));
         private const string EpgFileNameFormat = "epgdata.{datepart}.{daypart}.json.gz";
-        private readonly IHttpDownloader _httpDownloader;
-        private readonly IFileDownloader _fileDownloader;
+        private readonly IDownloader _downloader;
 
-        public EpgHelper(IHttpDownloader httpDownloader, IFileDownloader fileDownloader)
+        public EpgHelper(IDownloader webDownloader)
         {
-            _httpDownloader = httpDownloader;
-            _fileDownloader = fileDownloader;
+            _downloader = webDownloader;
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace GlashartLibrary.Helpers
                     //Download the file
                     try
                     {
-                        _fileDownloader.DownloadBinaryFile(url, localFile);
+                        _downloader.DownloadBinaryFile(url, localFile);
                     }
                     catch (Exception err)
                     {
@@ -232,14 +230,14 @@ namespace GlashartLibrary.Helpers
                 var dir = id.Substring(id.Length - 2, 2);
                 var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
                 Logger.DebugFormat("Try to download {0}", url);
-                var data = _httpDownloader.DownloadString(url);
+                var data = _downloader.DownloadString(url);
                 //var data = "{\"id\":\"061079be-1516-4a4d-ad50-ba394557b6ad\",\"name\":\"NOS Journaal / Actueel / herhalingen NOS Journaal / Extra onderwerpen\",\"start\":1431075600,\"end\":1431097200,\"description\":\"Het nieuws van de dag.\",\"genres\":[\"Actualiteit\",\"Info\"],\"disableRestart\":false}";
                 Logger.DebugFormat("Downloaded details: {0}", data);
                 return data;
             }
             catch (Exception)
             {
-                Logger.DebugFormat("No detailed data found for id {0}");
+                Logger.DebugFormat("No detailed data found for id {0}", id);
                 return null;
             }
         }

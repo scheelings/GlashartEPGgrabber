@@ -1,4 +1,6 @@
-﻿using log4net;
+﻿using System;
+using System.Linq;
+using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Layout;
@@ -55,23 +57,14 @@ namespace GlashartEPGgrabber
 
         public static void ChangeLogLevel(string level)
         {
-            var loglevel = GetLogLevel(level);
             var hierarchy = (Hierarchy)LogManager.GetRepository();
-            hierarchy.Root.Level = loglevel;
-        }
-
-        private static Level GetLogLevel(string level)
-        {
-            if (string.IsNullOrWhiteSpace(level)) return Level.Info;
-            var collection = new LevelCollection();
-            foreach (var item in collection)
-            {
-                if (item.Name.ToLower().Equals(level.ToLower()))
-                {
-                    return item;
-                }
-            }
-            return Level.Info;
+            var loglevel = hierarchy
+                .LevelMap
+                .AllLevels
+                .Cast<Level>()
+                .FirstOrDefault(l => String.Compare(l.Name, level, StringComparison.OrdinalIgnoreCase) == 0);
+            hierarchy.Root.Level = loglevel ?? Level.Info;
+            hierarchy.RaiseConfigurationChanged(EventArgs.Empty);
         }
     }
 }

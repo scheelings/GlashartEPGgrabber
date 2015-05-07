@@ -55,7 +55,7 @@ namespace GlashartLibrary.Properties {
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\TvMenu\\glashart.m3u")]
         public string M3UfileName {
             get {
-                return ((string)(this["M3UfileName"]));
+                return ((string)(this["M3UFileName"]));
             }
         }
         
@@ -83,9 +83,9 @@ namespace GlashartLibrary.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\ChannelList.txt")]
-        public string ChannelsListFile {
+        public string ChannelsListFileName {
             get {
-                return ((string)(this["ChannelsListFile"]));
+                return ((string)(this["ChannelsListFileName"]));
             }
         }
         
@@ -140,6 +140,15 @@ namespace GlashartLibrary.Properties {
         public string IconFolder {
             get {
                 return ((string)(this["IconFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data")]
+        public string DataFolder {
+            get {
+                return ((string)(this["DataFolder"]));
             }
         }
     }

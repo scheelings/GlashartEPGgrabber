@@ -58,6 +58,10 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Channel.cs" />
+    <Compile Include="IO\Downloader.cs" />
+    <Compile Include="IO\HttpWebDownloader.cs" />
+    <Compile Include="IO\IDownloader.cs" />
+    <Compile Include="IO\NullWebDownloader.cs" />
     <Compile Include="Settings\ConfigSettings.cs" />
     <Compile Include="Settings\IniSettings.cs" />
     <Compile Include="EPG.cs" />
@@ -68,11 +72,11 @@
     <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Helpers\XmlHelper.cs" />
     <Compile Include="Helpers\XmlTvHelper.cs" />
-    <Compile Include="IO\CachedHttpDownloader.cs" />
+    <Compile Include="IO\CachedWebDownloader.cs" />
     <Compile Include="IO\CompressionHelper.cs" />
     <Compile Include="IO\FileDownloader.cs" />
     <Compile Include="IO\IFileDownloader.cs" />
-    <Compile Include="IO\IHttpDownloader.cs" />
+    <Compile Include="IO\IWebDownloader.cs" />
     <Compile Include="LogExtensions.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

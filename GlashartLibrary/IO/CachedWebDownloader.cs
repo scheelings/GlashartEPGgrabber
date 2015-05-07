@@ -1,59 +1,42 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using log4net;
 
 namespace GlashartLibrary.IO
 {
-    public class CachedHttpDownloader : IHttpDownloader
+    public class CachedWebDownloader : IWebDownloader
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(CachedHttpDownloader));
+        private readonly IWebDownloader _webDownloader;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(CachedWebDownloader));
         private const string Filename = "HttpCache.dat";
 
         private readonly string _file;
         private readonly Dictionary<string, string> _jsonCache = new Dictionary<string, string>();
         private readonly Dictionary<string, byte[]> _dataCache = new Dictionary<string, byte[]>();
 
-        public CachedHttpDownloader(string folder)
+        public CachedWebDownloader(string folder, IWebDownloader webDownloader)
         {
+            _webDownloader = webDownloader;
             _file = Path.Combine(folder, Filename);
         }
 
         public byte[] DownloadBinary(string url)
         {
-            try
-            {
-                var data = GetFromDataCache(url);
-                if (data != null) return data;
-                var webClient = new WebClient();
-                data = webClient.DownloadData(url);
-                AddToDataCache(url, data);
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex,"Failed to download the data from {0}", url);
-                return null;
-            }
+            var data = GetFromDataCache(url);
+            if (data != null) return data;
+            data = _webDownloader.DownloadBinary(url);
+            if (data != null) AddToDataCache(url, data);
+            return data;
         }
 
         public string DownloadString(string url)
         {
-            try
-            {
-                var data = GetFromJsonCache(url);
-                if (data != null) return data;
-                var webClient = new WebClient();
-                data = webClient.DownloadString(url);
-                AddToStringCache(url, data);
-                return data;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to download the string from {0}", url);
-                return null;
-            }
+            var data = GetFromJsonCache(url);
+            if (data != null) return data;
+            data = _webDownloader.DownloadString(url);
+            if (data != null) AddToStringCache(url, data);
+            return data;
         }
 
         private string GetFromJsonCache(string url)

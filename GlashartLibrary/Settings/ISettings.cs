@@ -7,15 +7,16 @@ namespace GlashartLibrary.Settings
         string TvMenuURL { get; }
         string EpgURL { get; }
         string TvMenuFolder { get; }
-        string M3UfileName { get; }
         bool IgmpToUdp { get; }
         List<string> M3U_ChannelLocationImportance { get;}
-        string ChannelsListFile { get; }
         int EpgNumberOfDays { get; }
         string EpgFolder { get; }
         int EpgArchiving { get; }
-        string XmlTvFileName { get; }
-        string DownloadedM3UFileName { get; }
+        string ChannelsListFile { get; }
+        string XmlTvFile { get; }
+        string M3UFile { get; }
+        string DownloadedM3UFile { get; }
         string IconFolder { get; }
+        string DataFolder { get; }
     }
 }
