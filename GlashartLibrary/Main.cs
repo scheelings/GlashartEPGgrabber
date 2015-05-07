@@ -14,10 +14,12 @@ namespace GlashartLibrary
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Main));
 
-        public static ISettings Settings;
+        private readonly ISettings _settings;
         private readonly IDownloader _downloader;
         private readonly IGenreTranslator _genreTranslator;
         private readonly EpgHelper _epghelper;
+        private readonly M3UHelper _m3UHelper;
+
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
         private const string TvMenuScriptFile = "code.js.gz";
@@ -26,10 +28,11 @@ namespace GlashartLibrary
 
         public Main(ISettings settings, IDownloader downloader, IGenreTranslator genreTranslator)
         {
-            Settings = settings;
+            _settings = settings;
             _downloader = downloader;
             _genreTranslator = genreTranslator;
-            _epghelper = new EpgHelper(downloader);
+            _epghelper = new EpgHelper(settings, downloader);
+            _m3UHelper = new M3UHelper(settings);
         }
 
         /// <summary>
@@ -40,8 +43,8 @@ namespace GlashartLibrary
         {
             try
             {
-                var url = string.Concat(Settings.TvMenuURL, TvMenuFileName);
-                var localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
+                var url = string.Concat(_settings.TvMenuURL, TvMenuFileName);
+                var localFile = Path.Combine(_settings.TvMenuFolder, TvMenuFileName);
 
                 Logger.InfoFormat("Downloading TV menu to {0}", localFile);
                 _downloader.DownloadBinaryFile(url,localFile);
@@ -64,8 +67,8 @@ namespace GlashartLibrary
         {
             try
             {
-                string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileName);
-                string localHtmlFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileNameDecompressed);
+                string localFile = Path.Combine(_settings.TvMenuFolder, TvMenuFileName);
+                string localHtmlFile = Path.Combine(_settings.TvMenuFolder, TvMenuFileNameDecompressed);
 
                 Logger.InfoFormat("Uncompressing TV menu to {0}", localHtmlFile);
                 CompressionHelper.Decompress(localFile, localHtmlFile);
@@ -89,7 +92,7 @@ namespace GlashartLibrary
             try
             {
                 //Parse the HTML file and determine tje path to the javascript file
-                string localHtmlFile = Path.Combine(Settings.TvMenuFolder, TvMenuFileNameDecompressed);
+                string localHtmlFile = Path.Combine(_settings.TvMenuFolder, TvMenuFileNameDecompressed);
                 string javascriptFile = HtmlHelper.GetScriptTagSrc(localHtmlFile);
                 if (string.IsNullOrWhiteSpace(javascriptFile))
                 {
@@ -98,8 +101,8 @@ namespace GlashartLibrary
                 }
 
                 //Determine the url to download
-                string url = string.Concat(Settings.TvMenuURL, javascriptFile);
-                string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
+                string url = string.Concat(_settings.TvMenuURL, javascriptFile);
+                string localFile = Path.Combine(_settings.TvMenuFolder, TvMenuScriptFile);
 
                 Logger.InfoFormat("Downloading TV menu script to {0}", localFile);
                 _downloader.DownloadBinaryFile(url, localFile);
@@ -122,8 +125,8 @@ namespace GlashartLibrary
         {
             try
             {
-                string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFile);
-                string localHtmlFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFileDecompressed);
+                string localFile = Path.Combine(_settings.TvMenuFolder, TvMenuScriptFile);
+                string localHtmlFile = Path.Combine(_settings.TvMenuFolder, TvMenuScriptFileDecompressed);
 
                 Logger.InfoFormat("Uncompressing TV menu script file to {0}", localHtmlFile);
                 CompressionHelper.Decompress(localFile, localHtmlFile);
@@ -142,13 +145,13 @@ namespace GlashartLibrary
         {
             try
             {
-                string localFile = Path.Combine(Settings.TvMenuFolder, TvMenuScriptFileDecompressed);
+                string localFile = Path.Combine(_settings.TvMenuFolder, TvMenuScriptFileDecompressed);
 
                 Logger.Info("Parsing channels from the TV menu script file");
                 var channels = JavascriptHelper.ParseChannnels(localFile);
                 Logger.InfoFormat("{0} channels found in TV menu script file", channels.Count);
 
-                string channelFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
+                string channelFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
                 Logger.InfoFormat("Logging channel list to file {0}", channelFile);
                 XmlHelper.Serialize(channels, channelFile);
                 Logger.Info("Channel XML file generated");
@@ -171,8 +174,8 @@ namespace GlashartLibrary
         {
             try
             {
-                var localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
-                var m3UFile = Settings.M3UFile;
+                var localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
+                var m3UFile = _settings.M3UFile;
 
                 //Read the channels for the xml file
                 if (channels == null)
@@ -186,7 +189,7 @@ namespace GlashartLibrary
                 var channelList = ReadChannelList(channels);
 
                 Logger.InfoFormat("Generating M3U file {0} based on channels", m3UFile);
-                var result = M3UHelper.GenerateM3U(channels, channelList, m3UFile, Settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
+                var result = _m3UHelper.GenerateM3U(channels, channelList, m3UFile, _settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
                 Logger.Info("M3U file generated");
 
                 return result;
@@ -205,18 +208,18 @@ namespace GlashartLibrary
         {
             try
             {
-                var m3UFile = Settings.M3UFile;
-                var downloadedM3UFile = Settings.DownloadedM3UFile;
+                var m3UFile = _settings.M3UFile;
+                var downloadedM3UFile = _settings.DownloadedM3UFile;
 
                 Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3UFile);
-                var channels = M3UHelper.ParseM3U(downloadedM3UFile);
+                var channels = _m3UHelper.ParseM3U(downloadedM3UFile);
                 Logger.Info("Downloaded M3U file parsed");
 
                 //Determine if a channel list is present
                 var channelList = ReadChannelList(null);
 
                 Logger.InfoFormat("Generating M3U file {0} based on parsed M3U file", m3UFile);
-                M3UHelper.GenerateM3U(channels, channelList, m3UFile);
+                _m3UHelper.GenerateM3U(channels, channelList, m3UFile);
                 Logger.Info("M3U file generated");
             }
             catch (Exception err)
@@ -235,7 +238,7 @@ namespace GlashartLibrary
             var result = new List<ChannelListItem>();
 
             //Read the channel list file (which has channels per line in the format {number},{originalname},{newname}. {newname} is optional)
-            string fileName = Settings.ChannelsListFile;
+            string fileName = _settings.ChannelsListFile;
             Logger.DebugFormat("Reading channel list from {0}", fileName);
 
             if (File.Exists(fileName))
@@ -267,8 +270,8 @@ namespace GlashartLibrary
             {
                 try
                 {
-                    Logger.DebugFormat("Cleanup EPG files from folder {0} (older than {1} days)", Settings.EpgFolder, Settings.EpgArchiving);
-                    EpgHelper.CleanUpEPG(Settings.EpgFolder, Settings.EpgArchiving);
+                    Logger.DebugFormat("Cleanup EPG files from folder {0} (older than {1} days)", _settings.EpgFolder, _settings.EpgArchiving);
+                    EpgHelper.CleanUpEPG(_settings.EpgFolder, _settings.EpgArchiving);
                     Logger.Debug("EPG files cleaned up");
                 }
                 catch (Exception err)
@@ -276,8 +279,8 @@ namespace GlashartLibrary
                     Logger.Error(err);
                 }
 
-                Logger.InfoFormat("Downloading EPG files to folder {0}", Settings.EpgFolder);
-                _epghelper.DownloadEPGfiles(Settings.EpgURL, Settings.EpgFolder, Settings.EpgNumberOfDays);
+                Logger.InfoFormat("Downloading EPG files to folder {0}", _settings.EpgFolder);
+                _epghelper.DownloadEPGfiles(_settings.EpgURL, _settings.EpgFolder, _settings.EpgNumberOfDays);
                 Logger.Info("EPG files downloaded");
             }
             catch (Exception err)
@@ -289,12 +292,12 @@ namespace GlashartLibrary
         /// <summary>
         /// Decompresses the EPG files
         /// </summary>
-        public void DecompressEPGfiles()
+        public void DecompressEpGfiles()
         {
             try
             {
-                Logger.InfoFormat("Decompressing EPG files in folder {0}", Settings.EpgFolder);
-                EpgHelper.DecompressEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
+                Logger.InfoFormat("Decompressing EPG files in folder {0}", _settings.EpgFolder);
+                EpgHelper.DecompressEPGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
                 Logger.Info("EPG files decompressed");
             }
             catch (Exception err)
@@ -305,8 +308,8 @@ namespace GlashartLibrary
 
         public List<EpgChannel> ReadEpgFromFiles()
         {
-            Logger.InfoFormat("Reading EPG files from folder {0}", Settings.EpgFolder);
-            var epg = EpgHelper.ReadEPGfiles(Settings.EpgFolder, Settings.EpgNumberOfDays);
+            Logger.InfoFormat("Reading EPG files from folder {0}", _settings.EpgFolder);
+            var epg = EpgHelper.ReadEPGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
             Logger.Info("EPG files read");
             return epg;
         }
@@ -314,7 +317,7 @@ namespace GlashartLibrary
         public List<Channel> ReadChannelList()
         {
             //Read the channels for the xml file
-            string localFile = Path.Combine(Settings.TvMenuFolder, ChannelsXmlFile);
+            string localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
             Logger.DebugFormat("Reading channels from XML file {0}", localFile);
             var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
             Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
@@ -345,9 +348,10 @@ namespace GlashartLibrary
             try
             {
                 //Generate XMLTV file
-                string xmltvFile = Settings.XmlTvFile;
+                string xmltvFile = _settings.XmlTvFile;
                 Logger.InfoFormat("Generating XMLTV file {0}", xmltvFile);
-                XmlTvHelper.GenerateXmlTv(epg, channelsToUse, xmltvFile);
+                var helper = new XmlTvHelper(_settings);
+                helper.GenerateXmlTv(epg, channelsToUse, xmltvFile);
                 Logger.Info("XMLTV file generated");
             }
             catch (Exception err)
@@ -421,6 +425,18 @@ namespace GlashartLibrary
                 var newGenres = _genreTranslator.Translate(program.Genres);
                 Logger.DebugFormat("Translated {0} genres for {1}", newGenres.Count, program.Id);
                 program.Genres.AddRange(newGenres);
+            }
+        }
+
+        public void DownloadChannelIcons(IEnumerable<Channel> channels)
+        {
+            var icons = channels.SelectMany(c => c.Icons).Distinct().ToList();
+            Logger.InfoFormat("Download {0} channel icons", icons.Count);
+            foreach (var icon in icons)
+            {
+                var url = string.Format("{0}/{1}", _settings.ImagesURL,icon);
+                var file = Path.Combine(_settings.IconFolder, icon);
+                _downloader.DownloadBinaryFile(url, file);
             }
         }
     }

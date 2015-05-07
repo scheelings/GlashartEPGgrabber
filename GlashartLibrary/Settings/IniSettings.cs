@@ -12,6 +12,7 @@ namespace GlashartLibrary.Settings
 
         public string TvMenuURL { get; private set; }
         public string EpgURL { get; private set; }
+        public string ImagesURL { get; private set; }
         
         public bool IgmpToUdp { get; private set; }
         public List<string> M3U_ChannelLocationImportance { get; private set; }
@@ -82,6 +83,9 @@ namespace GlashartLibrary.Settings
                     break;
                 case "EpgURL":
                     EpgURL = value;
+                    break;
+                case "ImagesURL":
+                    ImagesURL = value;
                     break;
                 case "M3UFileName":
                     M3UFileName = value;

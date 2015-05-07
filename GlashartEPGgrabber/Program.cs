@@ -22,6 +22,7 @@ namespace GlashartEPGgrabber
         private const string CommandLineArgument_DecompressTvMenuScript = "/unzip-tvscript";
         private const string CommandLineArgument_GenerateChannelsFile = "/channels";
         private const string CommandLineArgument_GenerateM3Ufile = "/m3u";
+        private const string CommandLineArgument_DownloadChannelIcons = "/dl-icons";
         private const string CommandLineArgument_DownloadEPG = "/dl-epg";
         private const string CommandLineArgument_DecompressEPG = "/unzip-epg";
         private const string CommandLineArgument_DownloadDetails = "/dl-details";
@@ -42,6 +43,7 @@ namespace GlashartEPGgrabber
         private static bool DecompressTvMenuScript = false;
         private static bool GenerateChannelsFile = false;
         private static bool GenerateM3Ufile = false;
+        private static bool DownloadChannelIcons = false;
         private static bool DownloadEPG = false;
         private static bool DecompressEPG = false;
         private static bool XmlTV = false;
@@ -85,10 +87,12 @@ namespace GlashartEPGgrabber
                     channels = main.GenerateChannelXmlFile();
                 if (GenerateM3Ufile)
                     channels = main.GenerateM3Ufile(channels);
+                if (DownloadChannelIcons)
+                    main.DownloadChannelIcons(channels);
                 if (DownloadEPG)
                     main.DownloadEpGfiles();
                 if (DecompressEPG)
-                    main.DecompressEPGfiles();
+                    main.DecompressEpGfiles();
                 if (XmlTV)
                 {
                     var epgData = main.ReadEpgFromFiles();
@@ -183,6 +187,11 @@ namespace GlashartEPGgrabber
                 else if (arg.Trim().Equals(CommandLineArgument_GenerateChannelsFile))
                 {
                     GenerateChannelsFile = true;
+                    ShowHelp = false;
+                }
+                else if (arg.Trim().Equals(CommandLineArgument_DownloadChannelIcons))
+                {
+                    DownloadChannelIcons = true;
                     ShowHelp = false;
                 }
                 else if (arg.Trim().Equals(CommandLineArgument_GenerateM3Ufile))

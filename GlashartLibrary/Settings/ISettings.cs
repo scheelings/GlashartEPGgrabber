@@ -6,6 +6,7 @@ namespace GlashartLibrary.Settings
     {
         string TvMenuURL { get; }
         string EpgURL { get; }
+        string ImagesURL { get; }
         bool IgmpToUdp { get; }
         List<string> M3U_ChannelLocationImportance { get;}
         int EpgNumberOfDays { get; }

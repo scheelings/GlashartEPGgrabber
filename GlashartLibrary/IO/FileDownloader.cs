@@ -21,7 +21,13 @@ namespace GlashartLibrary.IO
         public void DownloadBinaryFile(string url, string localFile)
         {
             EnsureDirectoryExist(localFile);
+            Logger.DebugFormat("Download {0} to {1}", url, localFile);
             var content = _webDownloader.DownloadBinary(url);
+            if (content == null)
+            {
+                Logger.WarnFormat("No data received, can't save {0}", localFile);
+                return;
+            }
             var file = File.OpenWrite(localFile);
             file.Write(content, 0, content.Length);
             file.Close();

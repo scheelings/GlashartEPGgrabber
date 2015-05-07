@@ -10,6 +10,7 @@
 /unzip-tvscript		Unzip de downloaded code.js.gz TV menu script file
 /channels		Generate the channels.xml file with all channels and 
 			URL's, based on the code.js file
+/dl-icons		Download the icons that belong to the channels
 /m3u			Generate the M3U file based on the channels.xml file
 /dl-epg			Download the EPG files 
 			ie: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz

@@ -160,5 +160,14 @@ namespace GlashartLibrary.Properties {
                 return ((string)(this["TvhGenreTranslationsFile"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://w.zt6.nl/images/")]
+        public string ImagesURL {
+            get {
+                return ((string)(this["ImagesURL"]));
+            }
+        }
     }
 }

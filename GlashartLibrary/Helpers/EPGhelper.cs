@@ -1,4 +1,5 @@
 ﻿using GlashartLibrary.IO;
+using GlashartLibrary.Settings;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -14,10 +15,12 @@ namespace GlashartLibrary.Helpers
     {
         private static readonly ILog Logger = LogManager.GetLogger(typeof(EpgHelper));
         private const string EpgFileNameFormat = "epgdata.{datepart}.{daypart}.json.gz";
+        private readonly ISettings _settings;
         private readonly IDownloader _downloader;
 
-        public EpgHelper(IDownloader webDownloader)
+        public EpgHelper(ISettings settings, IDownloader webDownloader)
         {
+            _settings = settings;
             _downloader = webDownloader;
         }
 
@@ -228,7 +231,7 @@ namespace GlashartLibrary.Helpers
             try
             {
                 var dir = id.Substring(id.Length - 2, 2);
-                var url = string.Format("{0}{1}/{2}.json", Main.Settings.EpgURL, dir, id);
+                var url = string.Format("{0}{1}/{2}.json", _settings.EpgURL, dir, id);
                 Logger.DebugFormat("Try to download {0}", url);
                 var data = _downloader.DownloadString(url);
                 //var data = "{\"id\":\"061079be-1516-4a4d-ad50-ba394557b6ad\",\"name\":\"NOS Journaal / Actueel / herhalingen NOS Journaal / Extra onderwerpen\",\"start\":1431075600,\"end\":1431097200,\"description\":\"Het nieuws van de dag.\",\"genres\":[\"Actualiteit\",\"Info\"],\"disableRestart\":false}";

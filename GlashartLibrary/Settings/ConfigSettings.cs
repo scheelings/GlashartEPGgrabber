@@ -7,6 +7,7 @@ namespace GlashartLibrary.Settings
     {
         public string TvMenuURL { get { return Properties.Settings.Default.TvMenuURL; } }
         public string EpgURL { get { return Properties.Settings.Default.EpgURL; } }
+        public string ImagesURL { get { return Properties.Settings.Default.ImagesURL; } }
         public string TvMenuFolder { get { return Properties.Settings.Default.TvMenuFolder; } }
         public bool IgmpToUdp { get { return Properties.Settings.Default.IgmpToUdp; } }
         public List<string> M3U_ChannelLocationImportance { get { return Properties.Settings.Default.M3U_ChannelLocationImportance.Cast<string>().ToList(); } }

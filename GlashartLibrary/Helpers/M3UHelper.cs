@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using GlashartLibrary.Settings;
 using log4net;
 
 namespace GlashartLibrary.Helpers
@@ -13,6 +14,13 @@ namespace GlashartLibrary.Helpers
 
         private const string ChannelLineStart = "#EXTINF:";
         private static readonly string[] ChannelUrlStarts = new string[] { "udp://", "rtp://", "rtsp://", "igmp://" };
+
+        private ISettings _settings;
+
+        public M3UHelper(ISettings settings)
+        {
+            _settings = settings;
+        }
 
         /// <summary>
         /// Generates the M3U file
@@ -27,7 +35,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="locationImportanceList">The location importance list (so the 1st string in this array is the name of the channel location which is most important; when this
         /// location name does not exist; the 2nd string in the array will be used; and so on...</param>
         /// <returns>List of generated channels</returns>
-        public static List<Channel> GenerateM3U(List<Channel> channels, List<ChannelListItem> channelList, string fileName, params string[] locationImportanceList)
+        public List<Channel> GenerateM3U(List<Channel> channels, List<ChannelListItem> channelList, string fileName, params string[] locationImportanceList)
         {
             if (channels == null || channels.Count == 0)
                 return null;
@@ -94,7 +102,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="channels">The channel list.</param>
         /// <param name="fileName">M3U file name.</param>
         /// <returns>List of generated channels</returns>
-        public static List<M3UChannel> GenerateM3U(List<M3UChannel> channels, List<ChannelListItem> channelList, string fileName)
+        public List<M3UChannel> GenerateM3U(List<M3UChannel> channels, List<ChannelListItem> channelList, string fileName)
         {
             if (channels == null || channels.Count == 0)
                 return null;
@@ -136,7 +144,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <returns></returns>
-        public static List<M3UChannel> ParseM3U(string fileName)
+        public List<M3UChannel> ParseM3U(string fileName)
         {
             List<M3UChannel> result = new List<M3UChannel>();
 
@@ -176,9 +184,9 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <returns></returns>
-        private static string GetLocationUrl(string url)
+        private string GetLocationUrl(string url)
         {
-            if (Main.Settings.IgmpToUdp)
+            if (_settings.IgmpToUdp)
                 url = url.Replace("igmp://", "udp://@");
             return url;
         }

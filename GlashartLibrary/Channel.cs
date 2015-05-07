@@ -4,9 +4,15 @@ namespace GlashartLibrary
 {
     public class Channel
     {
+        public Channel()
+        {
+            Icons = new List<string>();
+        }
+
         public string Key { get; set; }
         public string Name { get; set; }
         public List<ChannelLocation> Locations { get; set; }
+        public List<string> Icons { get; set; } 
 
         public override string ToString()
         {
