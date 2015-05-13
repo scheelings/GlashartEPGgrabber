@@ -11,6 +11,7 @@ namespace GlashartLibrary.Settings
         List<string> M3U_ChannelLocationImportance { get;}
         int EpgNumberOfDays { get; }
         int EpgArchiving { get; }
+        bool UseDisplayNameForIcon { get; }
 
         string TvMenuFolder { get; }
         string EpgFolder { get; }

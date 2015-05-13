@@ -55,5 +55,8 @@
     <Setting Name="ImagesURL" Type="System.String" Scope="Application">
       <Value Profile="(Default)">http://w.zt6.nl/images/</Value>
     </Setting>
+    <Setting Name="UseDisplayNameForIcon" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

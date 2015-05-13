@@ -1,4 +1,5 @@
-﻿using GlashartLibrary.IO;
+﻿using System.Globalization;
+using GlashartLibrary.IO;
 using GlashartLibrary.Settings;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -30,7 +31,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="baseUrl">The base URL.</param>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to download</param>
-        public void DownloadEPGfiles(string baseUrl, string localFolder, int numberOfDays)
+        public void DownloadEpGfiles(string baseUrl, string localFolder, int numberOfDays)
         {
             //EPG url example: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz
             DateTime date = DateTime.Today;
@@ -40,7 +41,7 @@ namespace GlashartLibrary.Helpers
                 for (int dayPart = 0; dayPart < 8; dayPart++)
                 {
                     string url = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    url = url.Replace("{daypart}", dayPart.ToString());
+                    url = url.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
 
                     string localFile = Path.Combine(localFolder, url);
                     url = string.Concat(baseUrl, url);
@@ -63,7 +64,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to decompress</param>
-        public static void DecompressEPGfiles(string localFolder, int numberOfDays)
+        public static void DecompressEpGfiles(string localFolder, int numberOfDays)
         {
             DateTime date = DateTime.Today;
             for (int dayNr = 0; dayNr < numberOfDays; dayNr++)
@@ -72,7 +73,7 @@ namespace GlashartLibrary.Helpers
                 for (int dayPart = 0; dayPart < 8; dayPart++)
                 {
                     string name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    name = name.Replace("{daypart}", dayPart.ToString());
+                    name = name.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
                     string compressedFile = Path.Combine(localFolder, name);
                     string uncompressedFile = compressedFile.Replace(".gz", "");
 
@@ -101,20 +102,20 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to decompress</param>
-        public static List<EpgChannel> ReadEPGfiles(string localFolder, int numberOfDays)
+        public static List<EpgChannel> ReadEpGfiles(string localFolder, int numberOfDays)
         {
-            List<EpgChannel> result = new List<EpgChannel>();
+            var result = new List<EpgChannel>();
 
-            DateTime date = DateTime.Today;
-            for (int dayNr = 0; dayNr < numberOfDays; dayNr++)
+            var date = DateTime.Today;
+            for (var dayNr = 0; dayNr < numberOfDays; dayNr++)
             {
                 //EPG is in 8 parts
-                for (int dayPart = 0; dayPart < 8; dayPart++)
+                for (var dayPart = 0; dayPart < 8; dayPart++)
                 {
-                    string name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
+                    var name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
                     name = name.Replace("{daypart}", dayPart.ToString());
-                    string compressedFile = Path.Combine(localFolder, name);
-                    string uncompressedFile = compressedFile.Replace(".gz", "");
+                    var compressedFile = Path.Combine(localFolder, name);
+                    var uncompressedFile = compressedFile.Replace(".gz", "");
 
                     //Read the JSON file
                     try
@@ -139,7 +140,7 @@ namespace GlashartLibrary.Helpers
                                     //Add programms
                                     foreach (var program in channelName.Value)
                                     {
-                                        EpgProgram prog = new EpgProgram();
+                                        var prog = new EpgProgram();
 
                                         foreach (var programProperty in program)
                                         {
@@ -212,7 +213,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="olderThanDays">Delete files older than x days.</param>
-        public static void CleanUpEPG(string localFolder, int olderThanDays)
+        public static void CleanUpEpg(string localFolder, int olderThanDays)
         {
             foreach (FileInfo file in new DirectoryInfo(localFolder).GetFiles())
             {

@@ -271,7 +271,7 @@ namespace GlashartLibrary
                 try
                 {
                     Logger.DebugFormat("Cleanup EPG files from folder {0} (older than {1} days)", _settings.EpgFolder, _settings.EpgArchiving);
-                    EpgHelper.CleanUpEPG(_settings.EpgFolder, _settings.EpgArchiving);
+                    EpgHelper.CleanUpEpg(_settings.EpgFolder, _settings.EpgArchiving);
                     Logger.Debug("EPG files cleaned up");
                 }
                 catch (Exception err)
@@ -280,7 +280,7 @@ namespace GlashartLibrary
                 }
 
                 Logger.InfoFormat("Downloading EPG files to folder {0}", _settings.EpgFolder);
-                _epghelper.DownloadEPGfiles(_settings.EpgURL, _settings.EpgFolder, _settings.EpgNumberOfDays);
+                _epghelper.DownloadEpGfiles(_settings.EpgURL, _settings.EpgFolder, _settings.EpgNumberOfDays);
                 Logger.Info("EPG files downloaded");
             }
             catch (Exception err)
@@ -297,7 +297,7 @@ namespace GlashartLibrary
             try
             {
                 Logger.InfoFormat("Decompressing EPG files in folder {0}", _settings.EpgFolder);
-                EpgHelper.DecompressEPGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
+                EpgHelper.DecompressEpGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
                 Logger.Info("EPG files decompressed");
             }
             catch (Exception err)
@@ -309,7 +309,7 @@ namespace GlashartLibrary
         public List<EpgChannel> ReadEpgFromFiles()
         {
             Logger.InfoFormat("Reading EPG files from folder {0}", _settings.EpgFolder);
-            var epg = EpgHelper.ReadEPGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
+            var epg = EpgHelper.ReadEpGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
             Logger.Info("EPG files read");
             return epg;
         }
@@ -430,13 +430,53 @@ namespace GlashartLibrary
 
         public void DownloadChannelIcons(IEnumerable<Channel> channels)
         {
-            var icons = channels.SelectMany(c => c.Icons).Distinct().ToList();
+            var channelsWithIcons = channels.Where(c => c != null && c.Icons != null && c.Icons.Any()).ToList();
+            Logger.InfoFormat("Download icons for {0} channels", channelsWithIcons.Count);
+            var icons = channelsWithIcons
+                .SelectMany(c => c.Icons)
+                .Distinct()
+                .ToList();
+
             Logger.InfoFormat("Download {0} channel icons", icons.Count);
             foreach (var icon in icons)
             {
                 var url = string.Format("{0}/{1}", _settings.ImagesURL,icon);
                 var file = Path.Combine(_settings.IconFolder, icon);
                 _downloader.DownloadBinaryFile(url, file);
+            }
+            CopyIconsToDisplayName(channelsWithIcons);
+        }
+
+        private void CopyIconsToDisplayName(IEnumerable<Channel> channels)
+        {
+            if (!_settings.UseDisplayNameForIcon) return;
+
+            foreach (var channel in channels)
+            {
+                var iconFile = Path.Combine(_settings.IconFolder, string.Format("{0}.png", channel.Name));
+                if (File.Exists(iconFile))
+                {
+                    Logger.InfoFormat("Icon {0} already exists", iconFile);
+                    continue;
+                }
+                var icon = channel.Icons
+                        .Select(i => Path.Combine(_settings.IconFolder, i))
+                        .FirstOrDefault(File.Exists);
+                if (icon == null)
+                {
+                    Logger.InfoFormat("Channel {0} doesn't have a downloaded icon", channel.Name);
+                    continue;
+                }
+
+                try
+                {
+                    File.Copy(icon, iconFile);
+                }
+                catch (Exception ex)
+                {
+                    Logger.WarnFormat("Failed to copy icon from {0} to {1}", icon, iconFile);
+                    Logger.Warn(ex.Message);
+                }
             }
         }
     }

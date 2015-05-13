@@ -20,6 +20,7 @@ namespace GlashartLibrary.Settings
         public int EpgNumberOfDays { get; private set; }
 
         public string DataFolder { get; private set; }
+        public bool UseDisplayNameForIcon { get; private set; }
         public string TvMenuFolder { get { return Path.Combine(DataFolder, "TvMenu"); } }
         public string EpgFolder { get { return Path.Combine(DataFolder, "Epg"); } }
         public string IconFolder { get { return Path.Combine(DataFolder, "Icons"); } }
@@ -119,6 +120,9 @@ namespace GlashartLibrary.Settings
                     break;
                 case "TvhGenreTranslationsFileName":
                     TvhGenreTranslationsFileName = value;
+                    break;
+                case "UseDisplayNameForIcon":
+                    UseDisplayNameForIcon = bool.Parse(value);
                     break;
                 default:
                     Logger.WarnFormat("Unknown configuration key: {0}", key);

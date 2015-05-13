@@ -169,5 +169,14 @@ namespace GlashartLibrary.Properties {
                 return ((string)(this["ImagesURL"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseDisplayNameForIcon {
+            get {
+                return ((bool)(this["UseDisplayNameForIcon"]));
+            }
+        }
     }
 }
