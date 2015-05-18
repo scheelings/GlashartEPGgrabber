@@ -297,7 +297,7 @@ namespace GlashartLibrary
             try
             {
                 Logger.InfoFormat("Decompressing EPG files in folder {0}", _settings.EpgFolder);
-                EpgHelper.DecompressEpGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
+                _epghelper.DecompressEpGfiles(_settings.EpgFolder, _settings.EpgNumberOfDays);
                 Logger.Info("EPG files decompressed");
             }
             catch (Exception err)

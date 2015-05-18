@@ -64,7 +64,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to decompress</param>
-        public static void DecompressEpGfiles(string localFolder, int numberOfDays)
+        public void DecompressEpGfiles(string localFolder, int numberOfDays)
         {
             DateTime date = DateTime.Today;
             for (int dayNr = 0; dayNr < numberOfDays; dayNr++)
@@ -113,7 +113,7 @@ namespace GlashartLibrary.Helpers
                 for (var dayPart = 0; dayPart < 8; dayPart++)
                 {
                     var name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    name = name.Replace("{daypart}", dayPart.ToString());
+                    name = name.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
                     var compressedFile = Path.Combine(localFolder, name);
                     var uncompressedFile = compressedFile.Replace(".gz", "");
 

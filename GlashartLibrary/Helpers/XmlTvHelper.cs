@@ -10,9 +10,9 @@ namespace GlashartLibrary.Helpers
 {
     public sealed class XmlTvHelper
     {
-        private static XmlDocument xml;
+        private static XmlDocument _xml;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(XmlTvHelper));
-        private ISettings _settings;
+        private readonly ISettings _settings;
 
         public XmlTvHelper(ISettings settings)
         {
@@ -27,34 +27,34 @@ namespace GlashartLibrary.Helpers
         /// <param name="fileName">Name of the file.</param>
         public void GenerateXmlTv(List<EpgChannel> epgChannels, List<Channel> channels, string fileName)
         {
-            xml = new XmlDocument();
+            _xml = new XmlDocument();
             GenerateRoot();
             GenerateChannels(epgChannels, channels);
             GeneratePrograms(epgChannels, channels);
 
             //Save xml
-            xml.InsertBefore(xml.CreateXmlDeclaration("1.0", "UTF-8", null), xml.DocumentElement);
-            xml.Save(fileName);
+            _xml.InsertBefore(_xml.CreateXmlDeclaration("1.0", "UTF-8", null), _xml.DocumentElement);
+            _xml.Save(fileName);
         }
 
         /// <summary>
         /// Generates the root node
         /// </summary>
         /// <returns></returns>
-        private XmlNode GenerateRoot()
+        private void GenerateRoot()
         {
-            var node = AppendNode(xml, "tv");
+            var node = AppendNode(_xml, "tv");
             AppendAttribute(node, "generator-info-name", "GlashartEPGgrabber (by Dennieku & jansaris)");
-            return node;
         }
 
         /// <summary>
         /// Generates the channels.
         /// </summary>
+        /// <param name="epgChannels"></param>
         /// <param name="channels">The channels.</param>
-        private void GenerateChannels(List<EpgChannel> epgChannels, List<Channel> channels)
+        private void GenerateChannels(List<EpgChannel> epgChannels, IEnumerable<Channel> channels)
         {
-            var root = xml.DocumentElement;
+            var root = _xml.DocumentElement;
             //Loop through the channels
             foreach (var channel in channels)
             {
@@ -83,7 +83,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="channels">The channels.</param>
         private void GeneratePrograms(List<EpgChannel> epgChannels, List<Channel> channels)
         {
-            var root = xml.DocumentElement;
+            var root = _xml.DocumentElement;
 
             //Loop through the channels
             foreach (var channel in channels)
@@ -132,10 +132,11 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="parent">The parent node</param>
         /// <param name="name">The name.</param>
+        /// <param name="innerText"></param>
         /// <returns></returns>
         private XmlNode AppendNode(XmlNode parent, string name, string innerText = null)
         {
-            XmlNode node = xml.CreateElement(name);
+            XmlNode node = _xml.CreateElement(name);
             parent.AppendChild(node);
             if (!string.IsNullOrWhiteSpace(innerText))
                 node.InnerText = innerText;
@@ -149,12 +150,11 @@ namespace GlashartLibrary.Helpers
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
         /// <returns></returns>
-        private XmlAttribute AppendAttribute(XmlNode node, string name, string value)
+        private void AppendAttribute(XmlNode node, string name, string value)
         {
-            var attr = xml.CreateAttribute(name);
+            var attr = _xml.CreateAttribute(name);
             attr.Value = value;
-            node.Attributes.Append(attr);
-            return attr;
+            if (node.Attributes != null) node.Attributes.Append(attr);
         }
     }
 }

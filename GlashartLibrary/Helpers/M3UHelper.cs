@@ -15,7 +15,7 @@ namespace GlashartLibrary.Helpers
         private const string ChannelLineStart = "#EXTINF:";
         private static readonly string[] ChannelUrlStarts = new string[] { "udp://", "rtp://", "rtsp://", "igmp://" };
 
-        private ISettings _settings;
+        private readonly ISettings _settings;
 
         public M3UHelper(ISettings settings)
         {
