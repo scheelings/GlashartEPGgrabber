@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Xml.Serialization;
 
 namespace GlashartLibrary.Helpers
@@ -18,8 +13,8 @@ namespace GlashartLibrary.Helpers
         /// <param name="fileName">Name of the file.</param>
         public static void Serialize<T>(T obj, string fileName)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(T));
-            using (StreamWriter stream = new StreamWriter(fileName))
+            var xs = new XmlSerializer(typeof(T));
+            using (var stream = new StreamWriter(fileName))
             {
                 xs.Serialize(stream, obj);
             }
@@ -33,8 +28,8 @@ namespace GlashartLibrary.Helpers
         /// <returns></returns>
         public static T Deserialize<T>(string fileName)
         {
-            XmlSerializer xs = new XmlSerializer(typeof(T));
-            using (StreamReader stream = new StreamReader(fileName))
+            var xs = new XmlSerializer(typeof(T));
+            using (var stream = new StreamReader(fileName))
             {
                 return (T)xs.Deserialize(stream);
             }

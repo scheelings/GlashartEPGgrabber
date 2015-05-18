@@ -1,17 +1,26 @@
-﻿using GlashartLibrary.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using GlashartLibrary.Settings;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class M3UHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(M3UHelper));
+
         private const string ChannelLineStart = "#EXTINF:";
         private static readonly string[] ChannelUrlStarts = new string[] { "udp://", "rtp://", "rtsp://", "igmp://" };
+
+        private readonly ISettings _settings;
+
+        public M3UHelper(ISettings settings)
+        {
+            _settings = settings;
+        }
 
         /// <summary>
         /// Generates the M3U file
@@ -26,7 +35,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="locationImportanceList">The location importance list (so the 1st string in this array is the name of the channel location which is most important; when this
         /// location name does not exist; the 2nd string in the array will be used; and so on...</param>
         /// <returns>List of generated channels</returns>
-        public static List<Channel> GenerateM3U(List<Channel> channels, List<ChannelListItem> channelList, string fileName, params string[] locationImportanceList)
+        public List<Channel> GenerateM3U(List<Channel> channels, List<ChannelListItem> channelList, string fileName, params string[] locationImportanceList)
         {
             if (channels == null || channels.Count == 0)
                 return null;
@@ -42,12 +51,12 @@ namespace GlashartLibrary.Helpers
                 Channel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
-                    ApplicationLog.WriteDebug("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
+                    Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
                     continue;
                 }
                 if (channel.Locations == null || channel.Locations.Count == 0)
                 {
-                    ApplicationLog.WriteDebug("M3U generator ignores {0}, because no locations found", channel.Name);
+                    Logger.DebugFormat("M3U generator ignores {0}, because no locations found", channel.Name);
                     continue;
                 }
 
@@ -72,7 +81,7 @@ namespace GlashartLibrary.Helpers
                 {
                     var location = channel.Locations.First();
                     lines.Add(GetLocationUrl(location.Url));
-                    ApplicationLog.WriteDebug("M3U generator selects first location {0} for channel {1}, because no important location is found", location.Name, channel.Name);
+                    Logger.DebugFormat("M3U generator selects first location {0} for channel {1}, because no important location is found", location.Name, channel.Name);
                 }
             }
 
@@ -93,7 +102,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="channels">The channel list.</param>
         /// <param name="fileName">M3U file name.</param>
         /// <returns>List of generated channels</returns>
-        public static List<M3UChannel> GenerateM3U(List<M3UChannel> channels, List<ChannelListItem> channelList, string fileName)
+        public List<M3UChannel> GenerateM3U(List<M3UChannel> channels, List<ChannelListItem> channelList, string fileName)
         {
             if (channels == null || channels.Count == 0)
                 return null;
@@ -109,19 +118,19 @@ namespace GlashartLibrary.Helpers
                 M3UChannel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
-                    ApplicationLog.WriteDebug("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
+                    Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
                     continue;
                 }
-                if (string.IsNullOrWhiteSpace(channel.URL))
+                if (string.IsNullOrWhiteSpace(channel.Url))
                 {
-                    ApplicationLog.WriteDebug("M3U generator ignores {0}, because no URL present", channel.Name);
+                    Logger.DebugFormat("M3U generator ignores {0}, because no URL present", channel.Name);
                     continue;
                 }
 
                 //Add line for channel
                 result.Add(channel);
                 lines.Add(string.Format("#EXTINF:{0},{1}", channelListItem.Number, channelListItem.GetName()));
-                lines.Add(channel.URL);
+                lines.Add(channel.Url);
             }
 
             //Write lines to file
@@ -135,7 +144,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <returns></returns>
-        public static List<M3UChannel> ParseM3U(string fileName)
+        public List<M3UChannel> ParseM3U(string fileName)
         {
             List<M3UChannel> result = new List<M3UChannel>();
 
@@ -163,7 +172,7 @@ namespace GlashartLibrary.Helpers
                 else if (ChannelUrlStarts.Any(e => line.StartsWith(e, StringComparison.InvariantCultureIgnoreCase)))
                 {
                     //Channel URL
-                    result.Last().URL = line.Trim();
+                    result.Last().Url = line.Trim();
                 }
             }
 
@@ -175,9 +184,9 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <returns></returns>
-        private static string GetLocationUrl(string url)
+        private string GetLocationUrl(string url)
         {
-            if (Settings.Default.IgmpToUdp)
+            if (_settings.IgmpToUdp)
                 url = url.Replace("igmp://", "udp://@");
             return url;
         }

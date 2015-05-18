@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace GlashartLibrary.Helpers
 {
@@ -16,6 +15,7 @@ namespace GlashartLibrary.Helpers
         private const string ChannelLocationStart = "b.b=";
         private const string ChannelLocationNameStart = "\"default\":";
         private const string ChannelLocationUrlStart = "b.h=";
+        private const string IconEnd = ".png";
 
         /// <summary>
         /// Parses the channnels from the Tv menu script file
@@ -57,6 +57,18 @@ namespace GlashartLibrary.Helpers
                         posEnd = channelPart.IndexOf("}", posStart);
                         if (posEnd != -1)
                             channel.Name = RemoveInvalidCharacters(StringHelper.DecodeEncodedNonAsciiCharacters(channelPart.Substring(posStart, posEnd - posStart)));
+                    }
+
+                    var iconStart = channelPart.IndexOf(IconEnd);
+                    while (iconStart != -1)
+                    {
+                        var begin = channelPart.LastIndexOf('"', iconStart);
+                        if (begin == -1) break;
+                        begin++;
+                        var end = (iconStart + IconEnd.Length) - begin;
+                        var icon = channelPart.Substring(begin, end);
+                        channel.Icons.Add(icon);
+                        iconStart = channelPart.IndexOf(IconEnd, iconStart + 1);
                     }
 
                     //Channels

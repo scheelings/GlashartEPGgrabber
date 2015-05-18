@@ -10,10 +10,12 @@
 /unzip-tvscript		Unzip de downloaded code.js.gz TV menu script file
 /channels		Generate the channels.xml file with all channels and 
 			URL's, based on the code.js file
+/dl-icons		Download the icons that belong to the channels
 /m3u			Generate the M3U file based on the channels.xml file
 /dl-epg			Download the EPG files 
 			ie: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz
 /unzip-epg		Unzip all downloaded EPG files
+/dl-details		Download epg details (only works in combination with /xmltv)
 /xmltv			Generate the XMLTV file
 			Also an EPG.xml file is generated with all parsed
 			EPG data
@@ -22,12 +24,14 @@
 			/dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript
 			/channels /m3u
 /all-xmltv		Execute all steps needed to generate the XMLTV file: 
-			/dl-epg /unzip-epg /xmltv
+			/dl-epg /unzip-epg /dl-details /xmltv
 /all			Execute all steps: 
 			/dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript 
-			/channels /m3u /dl-epg /unzip-epg /xmltv
+			/channels /m3u /dl-epg /unzip-epg /dl-details /xmltv
 
 /convert-m3u		Converts a downloaded M3U file to a new M3U file
+
+/ini-settings	Load the ini file instead of the GlashartEPGgrabber.exe.config (for linux mkbundle support)
 
 Note:	all additional settings can be changed in GlashartEPGgrabber.exe.config
 	in the applicationSettings section

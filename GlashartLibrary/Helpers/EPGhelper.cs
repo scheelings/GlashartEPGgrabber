@@ -1,19 +1,29 @@
-﻿using Newtonsoft.Json;
+﻿using System.Globalization;
+using GlashartLibrary.IO;
+using GlashartLibrary.Settings;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
-    public sealed class EPGhelper
+    public sealed class EpgHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(EpgHelper));
         private const string EpgFileNameFormat = "epgdata.{datepart}.{daypart}.json.gz";
+        private readonly ISettings _settings;
+        private readonly IDownloader _downloader;
+
+        public EpgHelper(ISettings settings, IDownloader webDownloader)
+        {
+            _settings = settings;
+            _downloader = webDownloader;
+        }
 
         /// <summary>
         /// Downloads the EPG (compressed) files.
@@ -21,7 +31,7 @@ namespace GlashartLibrary.Helpers
         /// <param name="baseUrl">The base URL.</param>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to download</param>
-        public static void DownloadEPGfiles(string baseUrl, string localFolder, int numberOfDays)
+        public void DownloadEpGfiles(string baseUrl, string localFolder, int numberOfDays)
         {
             //EPG url example: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz
             DateTime date = DateTime.Today;
@@ -31,7 +41,7 @@ namespace GlashartLibrary.Helpers
                 for (int dayPart = 0; dayPart < 8; dayPart++)
                 {
                     string url = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    url = url.Replace("{daypart}", dayPart.ToString());
+                    url = url.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
 
                     string localFile = Path.Combine(localFolder, url);
                     url = string.Concat(baseUrl, url);
@@ -39,11 +49,11 @@ namespace GlashartLibrary.Helpers
                     //Download the file
                     try
                     {
-                        HttpDownloader.DownloadBinaryFile(url, localFile);
+                        _downloader.DownloadBinaryFile(url, localFile);
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to download EPG for URL '{0}'", url);
+                        Logger.Error(err, "Unable to download EPG for URL '{0}'", url);
                     }
                 }
             }
@@ -54,7 +64,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to decompress</param>
-        public static void DecompressEPGfiles(string localFolder, int numberOfDays)
+        public void DecompressEpGfiles(string localFolder, int numberOfDays)
         {
             DateTime date = DateTime.Today;
             for (int dayNr = 0; dayNr < numberOfDays; dayNr++)
@@ -63,7 +73,7 @@ namespace GlashartLibrary.Helpers
                 for (int dayPart = 0; dayPart < 8; dayPart++)
                 {
                     string name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    name = name.Replace("{daypart}", dayPart.ToString());
+                    name = name.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
                     string compressedFile = Path.Combine(localFolder, name);
                     string uncompressedFile = compressedFile.Replace(".gz", "");
 
@@ -76,12 +86,12 @@ namespace GlashartLibrary.Helpers
                         }
                         else
                         {
-                            ApplicationLog.WriteDebug("EPG file {0} not found to decompress", name);
+                            Logger.DebugFormat("EPG file {0} not found to decompress", name);
                         }
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to decompress EPG file '{0}'", name);
+                        Logger.Error(err, "Unable to decompress EPG file '{0}'", name);
                     }
                 }
             }
@@ -92,20 +102,20 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="numberOfDays">Number of days to decompress</param>
-        public static List<EpgChannel> ReadEPGfiles(string localFolder, int numberOfDays)
+        public static List<EpgChannel> ReadEpGfiles(string localFolder, int numberOfDays)
         {
-            List<EpgChannel> result = new List<EpgChannel>();
+            var result = new List<EpgChannel>();
 
-            DateTime date = DateTime.Today;
-            for (int dayNr = 0; dayNr < numberOfDays; dayNr++)
+            var date = DateTime.Today;
+            for (var dayNr = 0; dayNr < numberOfDays; dayNr++)
             {
                 //EPG is in 8 parts
-                for (int dayPart = 0; dayPart < 8; dayPart++)
+                for (var dayPart = 0; dayPart < 8; dayPart++)
                 {
-                    string name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
-                    name = name.Replace("{daypart}", dayPart.ToString());
-                    string compressedFile = Path.Combine(localFolder, name);
-                    string uncompressedFile = compressedFile.Replace(".gz", "");
+                    var name = EpgFileNameFormat.Replace("{datepart}", date.AddDays(dayNr).ToString("yyyyMMdd"));
+                    name = name.Replace("{daypart}", dayPart.ToString(CultureInfo.InvariantCulture));
+                    var compressedFile = Path.Combine(localFolder, name);
+                    var uncompressedFile = compressedFile.Replace(".gz", "");
 
                     //Read the JSON file
                     try
@@ -130,7 +140,7 @@ namespace GlashartLibrary.Helpers
                                     //Add programms
                                     foreach (var program in channelName.Value)
                                     {
-                                        EpgProgram prog = new EpgProgram();
+                                        var prog = new EpgProgram();
 
                                         foreach (var programProperty in program)
                                         {
@@ -172,12 +182,12 @@ namespace GlashartLibrary.Helpers
                         }
                         else
                         {
-                            ApplicationLog.WriteDebug("EPG file {0} not found to read", name.Replace(".gz", ""));
+                            Logger.DebugFormat("EPG file {0} not found to read", name.Replace(".gz", ""));
                         }
                     }
                     catch (Exception err)
                     {
-                        ApplicationLog.WriteError(err, "Unable to decompress EPG file '{0}'", name);
+                        Logger.Error(err, "Unable to decompress EPG file '{0}'", name);
                     }
                 }
             }
@@ -195,10 +205,7 @@ namespace GlashartLibrary.Helpers
         /// <returns></returns>
         private static string GetJsonValue(dynamic value)
         {
-            if (value == null)
-                return null;
-            else
-                return value.ToString();
+            return value == null ? null : value.ToString();
         }
 
         /// <summary>
@@ -206,7 +213,7 @@ namespace GlashartLibrary.Helpers
         /// </summary>
         /// <param name="localFolder">The local folder.</param>
         /// <param name="olderThanDays">Delete files older than x days.</param>
-        public static void CleanUpEPG(string localFolder, int olderThanDays)
+        public static void CleanUpEpg(string localFolder, int olderThanDays)
         {
             foreach (FileInfo file in new DirectoryInfo(localFolder).GetFiles())
             {
@@ -214,5 +221,30 @@ namespace GlashartLibrary.Helpers
                     file.Delete();
             }
         }
+
+        public string DownloadDetails(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || id.Length < 2)
+            {
+                Logger.DebugFormat("No valid ID to download details");
+                return null;
+            }
+            try
+            {
+                var dir = id.Substring(id.Length - 2, 2);
+                var url = string.Format("{0}{1}/{2}.json", _settings.EpgURL, dir, id);
+                Logger.DebugFormat("Try to download {0}", url);
+                var data = _downloader.DownloadString(url);
+                //var data = "{\"id\":\"061079be-1516-4a4d-ad50-ba394557b6ad\",\"name\":\"NOS Journaal / Actueel / herhalingen NOS Journaal / Extra onderwerpen\",\"start\":1431075600,\"end\":1431097200,\"description\":\"Het nieuws van de dag.\",\"genres\":[\"Actualiteit\",\"Info\"],\"disableRestart\":false}";
+                Logger.DebugFormat("Downloaded details: {0}", data);
+                return data;
+            }
+            catch (Exception)
+            {
+                Logger.DebugFormat("No detailed data found for id {0}", id);
+                return null;
+            }
+        }
     }
 }
+

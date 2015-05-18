@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace GlashartLibrary
 {
     public class Channel
     {
+        public Channel()
+        {
+            Icons = new List<string>();
+        }
+
         public string Key { get; set; }
         public string Name { get; set; }
         public List<ChannelLocation> Locations { get; set; }
+        public List<string> Icons { get; set; } 
 
         public override string ToString()
         {
@@ -59,7 +61,7 @@ namespace GlashartLibrary
             string[] parts = textLine.Split(',');
             if (parts.Length == 2 || parts.Length == 3)
             {
-                int number = 0;
+                int number;
                 if (int.TryParse(parts[0].Trim(), out number))
                 {
                     return new ChannelListItem { Number = number, OriginalName = parts[1].Trim(), NewName = (parts.Length == 3 ? parts[2].Trim() : null) };
@@ -73,11 +75,11 @@ namespace GlashartLibrary
     {
         public string Number { get; set; }
         public string Name { get; set; }
-        public string URL { get; set; }
+        public string Url { get; set; }
 
         public override string ToString()
         {
-            return string.Format("{0}:{1} - {2}", Number, Name, URL);
+            return string.Format("{0}:{1} - {2}", Number, Name, Url);
         }
     }
 }
