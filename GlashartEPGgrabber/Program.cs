@@ -16,40 +16,40 @@ namespace GlashartEPGgrabber
 
         private static IWebDownloader _webDownloader = new HttpWebDownloader();
 
-        private const string CommandLineArgument_DownloadTvMenu = "/dl-tvmenu";
-        private const string CommandLineArgument_DecompressTvMenu = "/unzip-tvmenu";
-        private const string CommandLineArgument_DownloadTvMenuScript = "/dl-tvscript";
-        private const string CommandLineArgument_DecompressTvMenuScript = "/unzip-tvscript";
-        private const string CommandLineArgument_GenerateChannelsFile = "/channels";
-        private const string CommandLineArgument_GenerateM3Ufile = "/m3u";
-        private const string CommandLineArgument_DownloadChannelIcons = "/dl-icons";
-        private const string CommandLineArgument_DownloadEPG = "/dl-epg";
-        private const string CommandLineArgument_DecompressEPG = "/unzip-epg";
-        private const string CommandLineArgument_DownloadDetails = "/dl-details";
-        private const string CommandLineArgument_XmlTV = "/xmltv";
+        private const string CommandLineArgumentDownloadTvMenu = "/dl-tvmenu";
+        private const string CommandLineArgumentDecompressTvMenu = "/unzip-tvmenu";
+        private const string CommandLineArgumentDownloadTvMenuScript = "/dl-tvscript";
+        private const string CommandLineArgumentDecompressTvMenuScript = "/unzip-tvscript";
+        private const string CommandLineArgumentGenerateChannelsFile = "/channels";
+        private const string CommandLineArgumentGenerateM3Ufile = "/m3u";
+        private const string CommandLineArgumentDownloadChannelIcons = "/dl-icons";
+        private const string CommandLineArgumentDownloadEpg = "/dl-epg";
+        private const string CommandLineArgumentDecompressEpg = "/unzip-epg";
+        private const string CommandLineArgumentDownloadDetails = "/dl-details";
+        private const string CommandLineArgumentXmlTv = "/xmltv";
 
-        private const string CommandLineArgument_AllM3U = "/all-m3u";
-        private const string CommandLineArgument_AllXmlTv = "/all-xmltv";
-        private const string CommandLineArgument_All = "/all";
+        private const string CommandLineArgumentAllM3U = "/all-m3u";
+        private const string CommandLineArgumentAllXmlTv = "/all-xmltv";
+        private const string CommandLineArgumentAll = "/all";
 
-        private const string CommandLineArgument_ConvertM3U = "/convert-m3u";
+        private const string CommandLineArgumentConvertM3U = "/convert-m3u";
 
-        private const string CommandLineArgument_IniSettings = "/ini-settings";
+        private const string CommandLineArgumentIniSettings = "/ini-settings";
         
-        private static bool ShowHelp = true;
-        private static bool DownloadTvMenu = false;
-        private static bool DecompressTvMenu = false;
-        private static bool DownloadTvMenuScript = false;
-        private static bool DecompressTvMenuScript = false;
-        private static bool GenerateChannelsFile = false;
-        private static bool GenerateM3Ufile = false;
-        private static bool DownloadChannelIcons = false;
-        private static bool DownloadEPG = false;
-        private static bool DecompressEPG = false;
-        private static bool XmlTV = false;
-        private static bool ConvertM3U = false;
-        private static bool IniSettings = false;
-        private static bool DownloadDetails = false;
+        private static bool _showHelp = true;
+        private static bool _downloadTvMenu;
+        private static bool _decompressTvMenu;
+        private static bool _downloadTvMenuScript;
+        private static bool _decompressTvMenuScript;
+        private static bool _generateChannelsFile;
+        private static bool _generateM3Ufile;
+        private static bool _downloadChannelIcons;
+        private static bool _downloadEpg;
+        private static bool _decompressEpg;
+        private static bool _xmlTv;
+        private static bool _convertM3U;
+        private static bool _iniSettings;
+        private static bool _downloadDetails;
 
         /// <summary>
         /// Main entry of the console application
@@ -62,7 +62,7 @@ namespace GlashartEPGgrabber
             Logger.Info("Glashart EPG Grabber (by Dennieku, JanSaris)");
             Logger.Info("----------------------------------");
 
-            if (ShowHelp)
+            if (_showHelp)
             {
                 using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("GlashartEPGgrabber.help.txt")))
                 {
@@ -74,35 +74,35 @@ namespace GlashartEPGgrabber
             else
             {
                 var main = Initialize();
-                if (DownloadTvMenu)
+                if (_downloadTvMenu)
                     main.DownloadTvMenu();
-                if (DecompressTvMenu)
+                if (_decompressTvMenu)
                     main.DecompressTvMenu();
-                if (DownloadTvMenuScript)
+                if (_downloadTvMenuScript)
                     main.DownloadTvMenuScript();
-                if (DecompressTvMenuScript)
+                if (_decompressTvMenuScript)
                     main.DecompressTvMenuScript();
                 List<Channel> channels = null;
-                if (GenerateChannelsFile)
+                if (_generateChannelsFile)
                     channels = main.GenerateChannelXmlFile();
-                if (GenerateM3Ufile)
+                if (_generateM3Ufile)
                     channels = main.GenerateM3Ufile(channels);
-                if (DownloadChannelIcons)
+                if (_downloadChannelIcons)
                     main.DownloadChannelIcons(channels);
-                if (DownloadEPG)
+                if (_downloadEpg)
                     main.DownloadEpGfiles();
-                if (DecompressEPG)
+                if (_decompressEpg)
                     main.DecompressEpGfiles();
-                if (XmlTV)
+                if (_xmlTv)
                 {
                     var epgData = main.ReadEpgFromFiles();
                     channels = main.ReadChannelList();
-                    if (DownloadDetails)
+                    if (_downloadDetails)
                         epgData = main.DownloadDetails(epgData, channels);
                     main.GenerateXmlTv(epgData, channels);
                 }
                 
-                if (ConvertM3U)
+                if (_convertM3U)
                     main.ConvertM3Ufile();
 
                 Teardown();
@@ -115,7 +115,7 @@ namespace GlashartEPGgrabber
         private static Main Initialize()
         {
             var settings = LoadSettings();
-            _cachedWebDownloader = new CachedWebDownloader(settings.DataFolder, _webDownloader);
+            _cachedWebDownloader = new CachedWebDownloader(settings, _webDownloader);
             _cachedWebDownloader.LoadCache();
             var fileDownloader = new FileDownloader(_webDownloader);
             var downloader = new Downloader(_cachedWebDownloader, fileDownloader);
@@ -164,104 +164,104 @@ namespace GlashartEPGgrabber
             //Check the arguments
             foreach (string arg in args)
             {
-                if (arg.Trim().Equals(CommandLineArgument_DownloadTvMenu))
+                if (arg.Trim().Equals(CommandLineArgumentDownloadTvMenu))
                 {
-                    DownloadTvMenu = true;
-                    ShowHelp = false;
+                    _downloadTvMenu = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DecompressTvMenu))
+                else if (arg.Trim().Equals(CommandLineArgumentDecompressTvMenu))
                 {
-                    DecompressTvMenu = true;
-                    ShowHelp = false;
+                    _decompressTvMenu = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DownloadTvMenuScript))
+                else if (arg.Trim().Equals(CommandLineArgumentDownloadTvMenuScript))
                 {
-                    DownloadTvMenuScript = true;
-                    ShowHelp = false;
+                    _downloadTvMenuScript = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DecompressTvMenuScript))
+                else if (arg.Trim().Equals(CommandLineArgumentDecompressTvMenuScript))
                 {
-                    DecompressTvMenuScript = true;
-                    ShowHelp = false;
+                    _decompressTvMenuScript = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_GenerateChannelsFile))
+                else if (arg.Trim().Equals(CommandLineArgumentGenerateChannelsFile))
                 {
-                    GenerateChannelsFile = true;
-                    ShowHelp = false;
+                    _generateChannelsFile = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DownloadChannelIcons))
+                else if (arg.Trim().Equals(CommandLineArgumentDownloadChannelIcons))
                 {
-                    DownloadChannelIcons = true;
-                    ShowHelp = false;
+                    _downloadChannelIcons = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_GenerateM3Ufile))
+                else if (arg.Trim().Equals(CommandLineArgumentGenerateM3Ufile))
                 {
-                    GenerateM3Ufile = true;
-                    ShowHelp = false;
+                    _generateM3Ufile = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DownloadEPG))
+                else if (arg.Trim().Equals(CommandLineArgumentDownloadEpg))
                 {
-                    DownloadEPG = true;
-                    ShowHelp = false;
+                    _downloadEpg = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DownloadDetails))
+                else if (arg.Trim().Equals(CommandLineArgumentDownloadDetails))
                 {
-                    DownloadDetails = true;
+                    _downloadDetails = true;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_DecompressEPG))
+                else if (arg.Trim().Equals(CommandLineArgumentDecompressEpg))
                 {
-                    DecompressEPG = true;
-                    ShowHelp = false;
+                    _decompressEpg = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_XmlTV))
+                else if (arg.Trim().Equals(CommandLineArgumentXmlTv))
                 {
-                    XmlTV = true;
-                    ShowHelp = false;
+                    _xmlTv = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_AllM3U))
+                else if (arg.Trim().Equals(CommandLineArgumentAllM3U))
                 {
-                    DownloadTvMenu = true;
-                    DecompressTvMenu = true;
-                    DownloadTvMenuScript = true;
-                    DecompressTvMenuScript = true;
-                    GenerateChannelsFile = true;
-                    GenerateM3Ufile = true;
+                    _downloadTvMenu = true;
+                    _decompressTvMenu = true;
+                    _downloadTvMenuScript = true;
+                    _decompressTvMenuScript = true;
+                    _generateChannelsFile = true;
+                    _generateM3Ufile = true;
 
-                    ShowHelp = false;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_AllXmlTv))
+                else if (arg.Trim().Equals(CommandLineArgumentAllXmlTv))
                 {
-                    DownloadEPG = true;
-                    DecompressEPG = true;
-                    DownloadDetails = true;
-                    XmlTV = true;
+                    _downloadEpg = true;
+                    _decompressEpg = true;
+                    _downloadDetails = true;
+                    _xmlTv = true;
 
-                    ShowHelp = false;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_All))
+                else if (arg.Trim().Equals(CommandLineArgumentAll))
                 {
-                    DownloadTvMenu = true;
-                    DecompressTvMenu = true;
-                    DownloadTvMenuScript = true;
-                    DecompressTvMenuScript = true;
-                    GenerateChannelsFile = true;
-                    GenerateM3Ufile = true;
+                    _downloadTvMenu = true;
+                    _decompressTvMenu = true;
+                    _downloadTvMenuScript = true;
+                    _decompressTvMenuScript = true;
+                    _generateChannelsFile = true;
+                    _generateM3Ufile = true;
 
-                    DownloadEPG = true;
-                    DecompressEPG = true;
-                    DownloadDetails = true;
-                    XmlTV = true;
+                    _downloadEpg = true;
+                    _decompressEpg = true;
+                    _downloadDetails = true;
+                    _xmlTv = true;
 
-                    ShowHelp = false;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_ConvertM3U))
+                else if (arg.Trim().Equals(CommandLineArgumentConvertM3U))
                 {
-                    ConvertM3U = true;
-                    ShowHelp = false;
+                    _convertM3U = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_IniSettings))
+                else if (arg.Trim().Equals(CommandLineArgumentIniSettings))
                 {
-                    IniSettings = true;
+                    _iniSettings = true;
                 }
                 else if (arg.Trim().Equals("/no-iptv"))
                 {
@@ -272,7 +272,7 @@ namespace GlashartEPGgrabber
 
         private static ISettings LoadSettings()
         {
-            if(!IniSettings) return new ConfigSettings();
+            if(!_iniSettings) return new ConfigSettings();
             LogSetup.Setup();
             var settings = new IniSettings();
             settings.Load();

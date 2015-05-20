@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using GlashartLibrary.Settings;
 using log4net;
 
 namespace GlashartLibrary.IO
@@ -12,73 +14,48 @@ namespace GlashartLibrary.IO
         private const string Filename = "HttpCache.dat";
 
         private readonly string _file;
-        private readonly Dictionary<string, string> _jsonCache = new Dictionary<string, string>();
-        private readonly Dictionary<string, byte[]> _dataCache = new Dictionary<string, byte[]>();
+        private readonly int _daysToCache;
+        private readonly List<CacheObject> _cache = new List<CacheObject>(); 
 
-        public CachedWebDownloader(string folder, IWebDownloader webDownloader)
+        public CachedWebDownloader(ISettings settings, IWebDownloader webDownloader)
         {
             _webDownloader = webDownloader;
-            _file = Path.Combine(folder, Filename);
+            _file = Path.Combine(settings.DataFolder, Filename);
+            _daysToCache = settings.EpgArchiving;
         }
 
         public byte[] DownloadBinary(string url)
         {
-            var data = GetFromDataCache(url);
-            if (data != null) return data;
-            data = _webDownloader.DownloadBinary(url);
-            if (data != null) AddToDataCache(url, data);
-            return data;
+            var data = GetFromCache(url);
+            if (data != null) return data.ByteData;
+            var webData = _webDownloader.DownloadBinary(url);
+            if (webData != null) _cache.Add(new CacheObject(url, webData));
+            return webData;
         }
 
         public string DownloadString(string url)
         {
-            var data = GetFromJsonCache(url);
-            if (data != null) return data;
-            data = _webDownloader.DownloadString(url);
-            if (data != null) AddToStringCache(url, data);
-            return data;
+            var data = GetFromCache(url);
+            if (data != null) return data.StringData;
+            var webData = _webDownloader.DownloadString(url);
+            if (webData != null) AddToCache(new CacheObject(url, webData));
+            return webData;
         }
 
-        private string GetFromJsonCache(string url)
+        private void AddToCache(CacheObject obj)
         {
-            if (!_jsonCache.ContainsKey(url)) return null;
-            Logger.DebugFormat("Load http string from cache for {0}", url);
-            return _jsonCache[url];
+            Logger.DebugFormat("Add {0} data to cache for {1}", obj.DataType, obj.Url);
+            _cache.Add(obj);
         }
 
-        private void AddToStringCache(string url, string data)
+        private CacheObject GetFromCache(string url)
         {
-            if (_dataCache.ContainsKey(url))
+            var cacheObj = _cache.FirstOrDefault(c => c.Url == url);
+            if (cacheObj != null)
             {
-                Logger.DebugFormat("Update json cache for {0}", url);
-                _jsonCache[url] = data;
+                Logger.DebugFormat("Load from cache for {0}", url);
             }
-            else
-            {
-                Logger.DebugFormat("Save http json to cache for {0}", url);
-                _jsonCache.Add(url, data);
-            }
-        }
-
-        private byte[] GetFromDataCache(string url)
-        {
-            if (!_dataCache.ContainsKey(url)) return null;
-            Logger.DebugFormat("Load http data from cache for {0}", url);
-            return _dataCache[url];
-        }
-
-        private void AddToDataCache(string url, byte[] data)
-        {
-            if (_dataCache.ContainsKey(url))
-            {
-                Logger.DebugFormat("Update data cache for {0}", url);
-                _dataCache[url] = data;
-            }
-            else
-            {
-                Logger.DebugFormat("Save http data to cache for {0}", url);
-                _dataCache.Add(url, data);
-            }
+            return cacheObj;
         }
 
         public void LoadCache()
@@ -94,21 +71,12 @@ namespace GlashartLibrary.IO
                 using (var reader = new BinaryReader(File.OpenRead(_file)))
                 {
                     var count = reader.ReadInt32();
-                    Logger.DebugFormat("Read {0} json objects into cache", count);
-                    for(long i = 0; i < count; i ++)
+                    Logger.DebugFormat("Read {0} objects into cache", count);
+                    for(var i = 0; i < count; i ++)
                     {
-                        var key = reader.ReadString();
-                        var value = reader.ReadString();
-                        _jsonCache.Add(key, value);
-                    }
-                    count = reader.ReadInt32();
-                    Logger.DebugFormat("Read {0} data objects into cache", count);
-                    for (long i = 0; i < count; i++)
-                    {
-                        var key = reader.ReadString();
-                        var bytes = reader.ReadInt32();
-                        var value = reader.ReadBytes(bytes);
-                        _dataCache.Add(key, value);
+                        var obj = new CacheObject();
+                        obj.Deserialize(reader);
+                        _cache.Add(obj);
                     }
                 }
             }
@@ -122,29 +90,23 @@ namespace GlashartLibrary.IO
         {
             try
             {
+                var data = _cache;
+                if (_daysToCache > 0)
+                {
+                    Logger.DebugFormat("Filter the current cache to {0} days", _daysToCache);
+                    data = _cache.Where(c => c.Date.AddDays(_daysToCache) >= DateTime.Now).ToList();
+                }
                 Logger.DebugFormat("Save cache to {0}", _file);
                 using (var writer = new BinaryWriter(File.OpenWrite(_file)))
                 {
-                    writer.Write(_jsonCache.Count);
-                    Logger.DebugFormat("Write {0} json objects to cache", _jsonCache.Count);
-                    foreach (var kv in _jsonCache)
-                    {
-                        writer.Write(kv.Key);
-                        writer.Write(kv.Value);
-                    }
-                    writer.Write(_dataCache.Count);
-                    Logger.DebugFormat("Write {0} data objects to cache", _dataCache.Count);
-                    foreach (var kv in _dataCache)
-                    {
-                        writer.Write(kv.Key);
-                        writer.Write(kv.Value.Length);
-                        writer.Write(kv.Value);
-                    }
+                    Logger.DebugFormat("Write {0} objects to cache file", data.Count);
+                    writer.Write(data.Count);
+                    data.ForEach(d => d.Serialize(writer));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Failed to load http cache from {0}", _file);
+                Logger.Error(ex, "Failed to save http cache to {0}", _file);
             }
         }
     }
