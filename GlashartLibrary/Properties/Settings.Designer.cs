@@ -178,5 +178,23 @@ namespace GlashartLibrary.Properties {
                 return ((bool)(this["UseDisplayNameForIcon"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\TVheadend")]
+        public string TVheadendFolder {
+            get {
+                return ((string)(this["TVheadendFolder"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("eth0")]
+        public string TVheadendNetworkInterface {
+            get {
+                return ((string)(this["TVheadendNetworkInterface"]));
+            }
+        }
     }
 }

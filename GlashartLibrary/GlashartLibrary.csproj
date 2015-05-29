@@ -59,8 +59,10 @@
     </Compile>
     <Compile Include="Channel.cs" />
     <Compile Include="Helpers\IGenreTranslator.cs" />
+    <Compile Include="Helpers\TVheadendHelper.cs" />
     <Compile Include="Helpers\TvhGenreTranslator.cs" />
     <Compile Include="IO\Downloader.cs" />
+    <Compile Include="IO\FileHelper.cs" />
     <Compile Include="IO\HttpWebDownloader.cs" />
     <Compile Include="IO\IDownloader.cs" />
     <Compile Include="IO\NullWebDownloader.cs" />

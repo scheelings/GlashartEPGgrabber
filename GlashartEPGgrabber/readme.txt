@@ -1,7 +1,7 @@
 ﻿Glashart EPG Grabber (by Dennieku)
 -------------------------------------------------------
 
-The Glashart EPG Grabber has performs 2 jobs for you:
+The Glashart EPG Grabber has performs 3 jobs for you:
 1. Generating an M3U file with all IPTV channels
    This job is executed by the program in the following parts:
    a. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
@@ -16,9 +16,10 @@ The Glashart EPG Grabber has performs 2 jobs for you:
    a. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
    b. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
    c. Generating the XMLTV file
+3. Generating configuration files for TVheadend (version >= 3.9)
 Some additional features:
 1. Converting a downloaded M3U file into a new m3U file according the ChannelsListFile setting
-
+2. Converting a downloaded M3U file into TVheadend configuration files
 
 This program is a console application which can be executed like below:
 GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscript] [/channels] [/m3u] [/dl-epg] [/unzip-epg] [/xmltv] [/all-m3u] [/all-xmltv] [/all] [/convert-m3u]
@@ -33,12 +34,14 @@ GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscr
 /unzip-epg			Unzip all downloaded EPG files
 /xmltv				Generate the XMLTV file
 				Also an EPG.xml file is generated with all parsed EPG data
+/tvh				Generate TVheadend configuration files
 
 /all-m3u			Execute all steps needed to generate the M3U file: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u
 /all-xmltv			Execute all steps needed to generate the XMLTV file: /dl-epg /unzip-epg /xmltv
-/all				Execute all steps: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u /dl-epg /unzip-epg /xmltv
+/all				Execute all steps: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u /dl-epg /unzip-epg /xmltv /tvh
 
 /convert-m3u			Converts a downloaded M3U file to a new M3U file
+/m3u-to-tvh			Converts a downloaded M3U file to TVheadend configuration files
 
 
 Configuration can be changed in GlashartEPGgrabber.exe.config
@@ -55,5 +58,7 @@ EpgFolder			Folder to download EPG files to (default: D:\GlashartEPGgrabber\Data
 EpgArchiving			EPG files in the EpgFolder older than x days will be removed (default: 7)
 XmlTvFileName			XMLTV file name to generate (default: D:\GlashartEPGgrabber\Data\guide.xml)
 DownloadedM3UFileName		File name of downloaded M3U which will be converted to a new M3U file
+TVheadendFolder			Folder to generate the TVheadend configuration files in
+TVheadendNetworkInterface	Network interface ID used for IPTV in TVheadend (default: eth0)
 
 Logging can be set in log4net.config
