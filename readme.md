@@ -5,23 +5,24 @@ The Glashart EPG Grabber performs 3 jobs for you:
 
 1. Generating an M3U file with all IPTV channels
    This job is executed by the program in the following parts:
-   a. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
-   b. Unzipping the index.xhtml.gz file to index.html
-   c. Parsing the index.html to determine the URL of the TV script file to be downloaded (i.e. http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
-   d. Downloading the code.js.gz?1416996339 file
-   e. Unzipping the TV script file to code.js
-   f. Parsing the channels and URL's from the code.js file and generating a channels.xml file
-   g. Generating the M3U file based on channels.xml
+  1. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
+  2. Unzipping the index.xhtml.gz file to index.html
+  3. Parsing the index.html to determine the URL of the TV script file to be downloaded (i.e. http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
+  4. Downloading the code.js.gz?1416996339 file
+  5. Unzipping the TV script file to code.js
+  6. Parsing the channels and URL's from the code.js file and generating a channels.xml file
+  7. Generating the M3U file based on channels.xml
 
 2. Generating an XMLTV file for all IPTV channels, based on Glashart EPG
    This job is executed by the program in the following parts:
-   a. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
-   b. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
-   c. Generating the XMLTV file
+  1. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
+  2. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
+  3. Generating the XMLTV file
 
 3. Generating configuration files for TVheadend (version >= 3.9)
 
 Some additional features:
+
 1. Converting a downloaded M3U file into a new m3U file according the ChannelsListFile setting
 2. Converting a downloaded M3U file into TVheadend configuration files
 
