@@ -1,7 +1,8 @@
 ﻿Glashart EPG Grabber (by Dennieku)
 -------------------------------------------------------
 
-The Glashart EPG Grabber has performs 3 jobs for you:
+The Glashart EPG Grabber performs 3 jobs for you:
+
 1. Generating an M3U file with all IPTV channels
    This job is executed by the program in the following parts:
    a. Downloading the TV menu web page (i.e. http://w.zt6.nl/tvmenu/index.xhtml.gz)
@@ -11,12 +12,15 @@ The Glashart EPG Grabber has performs 3 jobs for you:
    e. Unzipping the TV script file to code.js
    f. Parsing the channels and URL's from the code.js file and generating a channels.xml file
    g. Generating the M3U file based on channels.xml
+
 2. Generating an XMLTV file for all IPTV channels, based on Glashart EPG
    This job is executed by the program in the following parts:
    a. Downloading the EPG files for the next x days (URL is like http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
    b. Unzipping all downloaded EPG files to (for instance) 'epgdata.20141128.1.json'
    c. Generating the XMLTV file
+
 3. Generating configuration files for TVheadend (version >= 3.9)
+
 Some additional features:
 1. Converting a downloaded M3U file into a new m3U file according the ChannelsListFile setting
 2. Converting a downloaded M3U file into TVheadend configuration files
