@@ -34,23 +34,23 @@ This program is a console application which can be executed like below:
 ```
 GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscript] [/channels] [/m3u] [/dl-epg] [/unzip-epg] [/xmltv] [/all-m3u] [/all-xmltv] [/all] [/convert-m3u]
 /dl-tvmenu			Download the TV menu web page (http://w.zt6.nl/tvmenu/index.xhtml.gz)
-/unzip-tvmenu			Unzip the downloaded index.xhtml.gz TV menu web page
-/dl-tvscript			Download the TV menu javascript file  (ie: http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
-				The URL to the TV menu script file is being determined from the TV menu web page
-/unzip-tvscript			Unzip the downloaded code.js.gz TV menu script file
+/unzip-tvmenu		Unzip the downloaded index.xhtml.gz TV menu web page
+/dl-tvscript		Download the TV menu javascript file  (ie: http://w.zt6.nl/tvmenu/code.js.gz?1416996339)
+					The URL to the TV menu script file is being determined from the TV menu web page
+/unzip-tvscript		Unzip the downloaded code.js.gz TV menu script file
 /channels			Generate the channels.xml file with all channels and URL's, based on the code.js file
 /m3u				Generate the M3U file based on the channels.xml file
 /dl-epg				Download the EPG files (ie: http://w.zt6.nl/epgdata/epgdata.20141128.1.json.gz)
 /unzip-epg			Unzip all downloaded EPG files
 /xmltv				Generate the XMLTV file
-				Also an EPG.xml file is generated with all parsed EPG data
+					Also an EPG.xml file is generated with all parsed EPG data
 /tvh				Generate TVheadend configuration files
 
 /all-m3u			Execute all steps needed to generate the M3U file: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u
 /all-xmltv			Execute all steps needed to generate the XMLTV file: /dl-epg /unzip-epg /xmltv
 /all				Execute all steps: /dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript /channels /m3u /dl-epg /unzip-epg /xmltv /tvh
 
-/convert-m3u			Converts a downloaded M3U file to a new M3U file
+/convert-m3u		Converts a downloaded M3U file to a new M3U file
 /m3u-to-tvh			Converts a downloaded M3U file to TVheadend configuration files
 ```
 
