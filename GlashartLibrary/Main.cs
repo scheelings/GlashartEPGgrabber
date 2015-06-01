@@ -390,7 +390,7 @@ namespace GlashartLibrary
             var channelsToUse = new List<Channel>();
             foreach (var channelListItem in channelList)
             {
-                var channelToUse = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+				var channelToUse = channels.FirstOrDefault(c => (c.Name ?? string.Empty).Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channelToUse != null)
                 {
                     channelToUse.Name = channelListItem.GetName();

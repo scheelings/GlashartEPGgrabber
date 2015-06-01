@@ -48,7 +48,7 @@ namespace GlashartLibrary.Helpers
             foreach (ChannelListItem channelListItem in channelList)
             {
                 //Find channel
-                Channel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+				Channel channel = channels.FirstOrDefault(c => (c.Name ?? string.Empty).Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
                     Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
