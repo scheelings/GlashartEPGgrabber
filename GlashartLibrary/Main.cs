@@ -378,11 +378,18 @@ namespace GlashartLibrary
         public List<Channel> ReadChannelList()
         {
             //Read the channels for the xml file
-            string localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
+            var localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
             Logger.DebugFormat("Reading channels from XML file {0}", localFile);
             var channels = XmlHelper.Deserialize<List<Channel>>(localFile);
-            Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
-
+            if (channels == null)
+            {
+                Logger.WarnFormat("Couldn't read the channels from xml file: {0}", localFile);
+                channels = new List<Channel>();
+            }
+            else
+            {
+                Logger.DebugFormat("{0} channels found in channels xml file", channels.Count);
+            }
 
             //Determine if a channel list is present
             var channelList = ReadChannelList(channels);

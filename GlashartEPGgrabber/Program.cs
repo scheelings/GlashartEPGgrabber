@@ -7,6 +7,7 @@ using GlashartLibrary.Helpers;
 using GlashartLibrary.IO;
 using GlashartLibrary.Settings;
 using log4net;
+using log4net.Config;
 
 namespace GlashartEPGgrabber
 {
@@ -27,14 +28,14 @@ namespace GlashartEPGgrabber
         private const string CommandLineArgumentDecompressEpg = "/unzip-epg";
         private const string CommandLineArgumentDownloadDetails = "/dl-details";
         private const string CommandLineArgumentXmlTv = "/xmltv";
-        private const string CommandLineArgument_TVheadend = "/tvh";
+        private const string CommandLineArgumentTVheadend = "/tvh";
 
         private const string CommandLineArgumentAllM3U = "/all-m3u";
         private const string CommandLineArgumentAllXmlTv = "/all-xmltv";
         private const string CommandLineArgumentAll = "/all";
 
         private const string CommandLineArgumentConvertM3U = "/convert-m3u";
-        private const string CommandLineArgument_M3UtoTVheadend = "/m3u-to-tvh";
+        private const string CommandLineArgumentM3UtoTVheadend = "/m3u-to-tvh";
 
         private const string CommandLineArgumentIniSettings = "/ini-settings";
         
@@ -52,8 +53,8 @@ namespace GlashartEPGgrabber
         private static bool _convertM3U;
         private static bool _iniSettings;
         private static bool _downloadDetails;
-        private static bool GenerateTVheadend = false;
-        private static bool ConvertM3uToTVheadend = false;
+        private static bool _generateTVheadend;
+        private static bool _convertM3uToTVheadend;
 
         /// <summary>
         /// Main entry of the console application
@@ -68,6 +69,7 @@ namespace GlashartEPGgrabber
 
             if (_showHelp)
             {
+                // ReSharper disable once AssignNullToNotNullAttribute
                 using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("GlashartEPGgrabber.help.txt")))
                 {
                     var help = stream.ReadToEnd();
@@ -105,9 +107,9 @@ namespace GlashartEPGgrabber
                         epgData = main.DownloadDetails(epgData, channels);
                     main.GenerateXmlTv(epgData, channels);
                 }
-                if (GenerateTVheadend)
+                if (_generateTVheadend)
                     main.GenerateTVheadend(channels);
-                if (ConvertM3uToTVheadend)
+                if (_convertM3uToTVheadend)
                     main.ConvertM3UtoTVheadend();
                 
                 if (_convertM3U)
@@ -226,16 +228,17 @@ namespace GlashartEPGgrabber
                     _xmlTv = true;
                     _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_TVheadend))
+                else if (arg.Trim().Equals(CommandLineArgumentTVheadend))
                 {
-                    GenerateTVheadend = true;
-                    ShowHelp = false;
+                    _generateTVheadend = true;
+                    _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgument_M3UtoTVheadend))
+                else if (arg.Trim().Equals(CommandLineArgumentM3UtoTVheadend))
                 {
-                    ConvertM3uToTVheadend = true;
-                    ShowHelp = false;
+                    _convertM3uToTVheadend = true;
+                    _showHelp = false;
                 }
+                else if (arg.Trim().Equals(CommandLineArgumentAllM3U))
                 {
                     _downloadTvMenu = true;
                     _decompressTvMenu = true;
@@ -269,7 +272,7 @@ namespace GlashartEPGgrabber
                     _downloadDetails = true;
                     _xmlTv = true;
 
-                    GenerateTVheadend = true;
+                    _generateTVheadend = true;
 
                     _showHelp = false;
                 }
@@ -291,7 +294,19 @@ namespace GlashartEPGgrabber
 
         private static ISettings LoadSettings()
         {
-            if(!_iniSettings) return new ConfigSettings();
+            return _iniSettings ? 
+                LoadIniSettings() : 
+                LoadConfigSettings();
+        }
+
+        private static ISettings LoadConfigSettings()
+        {
+            XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            return new ConfigSettings();
+        }
+
+        private static ISettings LoadIniSettings()
+        {
             LogSetup.Setup();
             var settings = new IniSettings();
             settings.Load();
