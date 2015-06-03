@@ -24,6 +24,7 @@ namespace GlashartLibrary.Settings
         public string TvMenuFolder { get { return Path.Combine(DataFolder, "TvMenu"); } }
         public string EpgFolder { get { return Path.Combine(DataFolder, "Epg"); } }
         public string IconFolder { get { return Path.Combine(DataFolder, "Icons"); } }
+        public string TVheadendFolder { get { return Path.Combine(DataFolder, "TVheadend"); } }
 
         public string XmlTvFile { get { return Path.Combine(DataFolder, XmlTvFileName); } }
         private string XmlTvFileName { get; set; }
@@ -33,6 +34,8 @@ namespace GlashartLibrary.Settings
 
         public string TvhGenreTranslationsFile { get { return Path.Combine(DataFolder, TvhGenreTranslationsFileName); } }
         private string TvhGenreTranslationsFileName { get; set; }
+
+        public string TVheadendNetworkInterface { get; private set; }
 
         public string ChannelsListFile { get { return Path.Combine(TvMenuFolder, ChannelsListFileName); } }
         private string ChannelsListFileName { get; set; }
@@ -123,6 +126,9 @@ namespace GlashartLibrary.Settings
                     break;
                 case "UseDisplayNameForIcon":
                     UseDisplayNameForIcon = bool.Parse(value);
+                    break;
+                case "TVheadendNetworkInterface":
+                    TVheadendNetworkInterface = value;
                     break;
                 default:
                     Logger.WarnFormat("Unknown configuration key: {0}", key);

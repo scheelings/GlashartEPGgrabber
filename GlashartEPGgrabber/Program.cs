@@ -27,12 +27,14 @@ namespace GlashartEPGgrabber
         private const string CommandLineArgumentDecompressEpg = "/unzip-epg";
         private const string CommandLineArgumentDownloadDetails = "/dl-details";
         private const string CommandLineArgumentXmlTv = "/xmltv";
+        private const string CommandLineArgument_TVheadend = "/tvh";
 
         private const string CommandLineArgumentAllM3U = "/all-m3u";
         private const string CommandLineArgumentAllXmlTv = "/all-xmltv";
         private const string CommandLineArgumentAll = "/all";
 
         private const string CommandLineArgumentConvertM3U = "/convert-m3u";
+        private const string CommandLineArgument_M3UtoTVheadend = "/m3u-to-tvh";
 
         private const string CommandLineArgumentIniSettings = "/ini-settings";
         
@@ -50,6 +52,8 @@ namespace GlashartEPGgrabber
         private static bool _convertM3U;
         private static bool _iniSettings;
         private static bool _downloadDetails;
+        private static bool GenerateTVheadend = false;
+        private static bool ConvertM3uToTVheadend = false;
 
         /// <summary>
         /// Main entry of the console application
@@ -101,6 +105,10 @@ namespace GlashartEPGgrabber
                         epgData = main.DownloadDetails(epgData, channels);
                     main.GenerateXmlTv(epgData, channels);
                 }
+                if (GenerateTVheadend)
+                    main.GenerateTVheadend(channels);
+                if (ConvertM3uToTVheadend)
+                    main.ConvertM3UtoTVheadend();
                 
                 if (_convertM3U)
                     main.ConvertM3Ufile();
@@ -218,7 +226,16 @@ namespace GlashartEPGgrabber
                     _xmlTv = true;
                     _showHelp = false;
                 }
-                else if (arg.Trim().Equals(CommandLineArgumentAllM3U))
+                else if (arg.Trim().Equals(CommandLineArgument_TVheadend))
+                {
+                    GenerateTVheadend = true;
+                    ShowHelp = false;
+                }
+                else if (arg.Trim().Equals(CommandLineArgument_M3UtoTVheadend))
+                {
+                    ConvertM3uToTVheadend = true;
+                    ShowHelp = false;
+                }
                 {
                     _downloadTvMenu = true;
                     _decompressTvMenu = true;
@@ -251,6 +268,8 @@ namespace GlashartEPGgrabber
                     _decompressEpg = true;
                     _downloadDetails = true;
                     _xmlTv = true;
+
+                    GenerateTVheadend = true;
 
                     _showHelp = false;
                 }

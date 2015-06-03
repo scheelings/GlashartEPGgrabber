@@ -19,6 +19,7 @@
 /xmltv			Generate the XMLTV file
 			Also an EPG.xml file is generated with all parsed
 			EPG data
+/tvh			Generate TVheadend configuration files
 
 /all-m3u		Execute all steps needed to generate the M3U file: 
 			/dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript
@@ -27,9 +28,10 @@
 			/dl-epg /unzip-epg /dl-details /xmltv
 /all			Execute all steps: 
 			/dl-tvmenu /unzip-tvmenu /dl-tvscript /unzip-tvscript 
-			/channels /m3u /dl-epg /unzip-epg /dl-details /xmltv
+			/channels /m3u /dl-epg /unzip-epg /dl-details /xmltv /tvh
 
 /convert-m3u		Converts a downloaded M3U file to a new M3U file
+/m3u-to-tvh			Converts a downloaded M3U file to TVheadend configuration files
 
 /ini-settings	Load the ini file instead of the GlashartEPGgrabber.exe.config (for linux mkbundle support)
 

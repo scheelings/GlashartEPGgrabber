@@ -19,6 +19,7 @@ namespace GlashartLibrary
         private readonly IGenreTranslator _genreTranslator;
         private readonly EpgHelper _epghelper;
         private readonly M3UHelper _m3UHelper;
+        private readonly TVheadendHelper _tvhHelper;
 
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
@@ -33,6 +34,7 @@ namespace GlashartLibrary
             _genreTranslator = genreTranslator;
             _epghelper = new EpgHelper(settings, downloader);
             _m3UHelper = new M3UHelper(settings);
+            _tvhHelper = new TVheadendHelper(settings);
         }
 
         /// <summary>
@@ -229,6 +231,65 @@ namespace GlashartLibrary
         }
 
         /// <summary>
+        /// Generates the TVheadend configuration files
+        /// </summary>
+        /// <param name="channels">The channels.</param>
+        public void GenerateTVheadend(List<Channel> channels = null)
+        {
+            try
+            {
+                var localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
+                var tvhfolder = _settings.TVheadendFolder;
+
+                //Read the channels for the xml file
+                if (channels == null)
+                {
+                    Logger.InfoFormat("Reading channels from XML file {0}", localFile);
+                    channels = XmlHelper.Deserialize<List<Channel>>(localFile);
+                    Logger.InfoFormat("{0} channels found in channels xml file", channels.Count);
+                }
+
+                //Determine if a channel list is present
+                var channelList = ReadChannelList(null);
+
+                Logger.InfoFormat("Generating TVheadend configuration files in {0} based on channels", tvhfolder);
+                _tvhHelper.GenerateTVH(channels, channelList, tvhfolder, _settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
+                Logger.Info("TVheadend configuration files generated");
+            }
+            catch (Exception err)
+            {
+                Logger.Error(err);
+            }
+        }
+
+        /// <summary>
+        /// Converts the M3U file to TVheadend configuration files
+        /// </summary>
+        public void ConvertM3UtoTVheadend()
+        {
+            try
+            {
+                var tvhFolder = _settings.TVheadendFolder;
+                var downloadedM3UFile = _settings.DownloadedM3UFile;
+
+                Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3UFile);
+                var channels = _m3UHelper.ParseM3U(downloadedM3UFile);
+                Logger.Info("Downloaded M3U file parsed");
+
+                //Determine if a channel list is present
+                var channelList = ReadChannelList(null);
+
+                Logger.InfoFormat("Generating TVheadend configuration files in {0} based on parsed M3U file", tvhFolder);
+                _tvhHelper.GenerateTVH(channels, channelList, tvhFolder);
+                Logger.Info("TVheadend configuration files generated");
+            }
+            catch (Exception err)
+            {
+                Logger.Error(err);
+            }
+        }
+
+        /// <summary>
         /// Reads the channel list from the channel file
         /// </summary>
         /// <param name="availableChannels">The available channels.</param>
@@ -329,7 +390,7 @@ namespace GlashartLibrary
             var channelsToUse = new List<Channel>();
             foreach (var channelListItem in channelList)
             {
-                var channelToUse = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+				var channelToUse = channels.FirstOrDefault(c => (c.Name ?? string.Empty).Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channelToUse != null)
                 {
                     channelToUse.Name = channelListItem.GetName();

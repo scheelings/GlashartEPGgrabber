@@ -75,6 +75,9 @@ namespace GlashartLibrary.Helpers
                     int posChannelsStart = posStart;
                     while (true)
                     {
+						if (posStart == -1 || posStart >= channelPart.Length)
+							break;
+						
                         posStart = channelPart.IndexOf(ChannelLocationStart, posStart);
                         if (posStart == -1)
                             break;
@@ -104,7 +107,7 @@ namespace GlashartLibrary.Helpers
                     }
 
                     //Check of we have found any locations
-                    if (channel.Locations.Count == 0)
+                    if (channel.Locations.Count == 0 && posChannelsStart != -1)
                     {
                         //Check if there is maybe an Url present
                         posStart = channelPart.IndexOf(ChannelLocationUrlStart, posChannelsStart);
