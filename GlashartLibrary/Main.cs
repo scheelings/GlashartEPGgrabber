@@ -19,7 +19,7 @@ namespace GlashartLibrary
         private readonly IGenreTranslator _genreTranslator;
         private readonly EpgHelper _epghelper;
         private readonly M3UHelper _m3UHelper;
-        private readonly TVheadendHelper _tvhHelper;
+        private readonly TvHeadendHelper _tvhHelper;
 
         private const string TvMenuFileName = "index.xhtml.gz";
         private const string TvMenuFileNameDecompressed = "index.html";
@@ -34,7 +34,7 @@ namespace GlashartLibrary
             _genreTranslator = genreTranslator;
             _epghelper = new EpgHelper(settings, downloader);
             _m3UHelper = new M3UHelper(settings);
-            _tvhHelper = new TVheadendHelper(settings);
+            _tvhHelper = new TvHeadendHelper(settings);
         }
 
         /// <summary>

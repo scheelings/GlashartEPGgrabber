@@ -1,27 +1,25 @@
-﻿using GlashartLibrary.IO;
-using GlashartLibrary.Settings;
-using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using GlashartLibrary.IO;
+using GlashartLibrary.Settings;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
-    public sealed class TVheadendHelper
+    public sealed class TvHeadendHelper
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(TVheadendHelper));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(TvHeadendHelper));
         private readonly ISettings _settings;
 
         private const string NetworkName = "IPTV";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TVheadendHelper"/> class.
+        /// Initializes a new instance of the <see cref="TvHeadendHelper"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public TVheadendHelper(ISettings settings)
+        public TvHeadendHelper(ISettings settings)
         {
             _settings = settings;
         }
@@ -30,22 +28,23 @@ namespace GlashartLibrary.Helpers
         /// Generates the TVheadend configuration files
         /// </summary>
         /// <param name="channels">The channel list.</param>
+        /// <param name="channelList">Filtered channel list.</param>
         /// <param name="folder">The folder to save the TVH files.</param>
-        /// <param name="locationImportanceList">The location importance list (so the 1st string in this array is the name of the channel location which is most important; when this
+        /// <param name="locationImportanceList">The location importance list (so the 1st string in this array is the name of the channel location which is most important; when this</param>
         public void GenerateTVH(List<Channel> channels, List<ChannelListItem> channelList, string folder, params string[] locationImportanceList)
         {
             if (channels == null || channels.Count == 0)
                 return;
 
-            string networkId = System.Guid.NewGuid().ToString("N");
+            var networkId = Guid.NewGuid().ToString("N");
             GenerateFolders(folder, networkId);
-            Dictionary<string, string> tags = new Dictionary<string, string>();
+            var tags = new Dictionary<string, string>();
 
             //Loop throug the channel list
-            foreach (ChannelListItem channelListItem in channelList)
+            foreach (var channelListItem in channelList)
             {
                 //Find channel
-                Channel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+                var channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
                     Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
@@ -59,8 +58,8 @@ namespace GlashartLibrary.Helpers
 
                 //Get the (most important) location
                 string locationUrl = null;
-                bool locationFound = false;
-                foreach (string mostImportantLocation in locationImportanceList)
+                var locationFound = false;
+                foreach (var mostImportantLocation in locationImportanceList)
                 {
                     var location = channel.Locations.FirstOrDefault(l => mostImportantLocation.Equals(l.Name, StringComparison.InvariantCultureIgnoreCase));
                     if (location != null)
@@ -79,17 +78,17 @@ namespace GlashartLibrary.Helpers
                 }
 
                 //No Tag property in our Channels yet
-                string tag = string.Empty; //channel.Tag
-                List<string> tagIndexes = new List<string>();
+                var tag = string.Empty; //channel.Tag
+                var tagIndexes = new List<string>();
                 if (!string.IsNullOrWhiteSpace(tag))
                 {
                     //    tag = channel.Tag;
-                    string[] channelTags = tag.Split(',');
-                    foreach (string channelTag in channelTags)
+                    var channelTags = tag.Split(',');
+                    foreach (var channelTag in channelTags)
                     {
                         if (!tags.ContainsKey(channelTag))
                         {
-                            tags.Add(channelTag, System.Guid.NewGuid().ToString("N"));
+                            tags.Add(channelTag, Guid.NewGuid().ToString("N"));
                             File.WriteAllText(Path.Combine(folder, "channel", "tag", tags[channelTag]),
                                 string.Concat("{\n\t\"enabled\": true,\n\t\"internal\": false,\n\t\"titledIcon\": false,\n\t\"name\": \"", channelTag, "\",\n\t\"comment\": \"\",\n\t\"icon\": \"\"\n}"));
                         }
@@ -98,24 +97,24 @@ namespace GlashartLibrary.Helpers
                 }
 
                 //Identifier
-                char[] id = channel.Name.ToCharArray();
-                id = Array.FindAll<char>(id, (c => char.IsLetterOrDigit(c)));
-                string identifier = new string(id);
+                var id = channel.Name.ToCharArray();
+                id = Array.FindAll(id, char.IsLetterOrDigit);
+                var identifier = new string(id);
                 //Image icon
-                string img = channel.Icons.FirstOrDefault(ico => File.Exists(Path.Combine(_settings.IconFolder, ico)));
+                var img = channel.Icons.FirstOrDefault(ico => File.Exists(Path.Combine(_settings.IconFolder, ico)));
                 //Id's
-                string mux_id = System.Guid.NewGuid().ToString("N");
-                string svc_id = System.Guid.NewGuid().ToString("N");
-                string channel_id = System.Guid.NewGuid().ToString("N");
+                var muxId = Guid.NewGuid().ToString("N");
+                var svcId = Guid.NewGuid().ToString("N");
+                var channelId = Guid.NewGuid().ToString("N");
 
                 //Generate folder and files
-                Directory.CreateDirectory(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "services"));
-                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "config"), 
+                Directory.CreateDirectory(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "services"));
+                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "config"), 
                     string.Concat("{\n\t\"iptv_url\": \"", locationUrl, "\",\n\t\"iptv_interface\": \"", _settings.TVheadendNetworkInterface, "\",\n\t\"iptv_atsc\": false,\n\t\"iptv_muxname\": \"", identifier, "\",\n\t\"iptv_sname\": \"", identifier, "\",\n\t\"iptv_respawn\": false,\n\t\"enabled\": true,\n\t\"scan_result\": 1\n}"));
-                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "services", svc_id), 
+                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "services", svcId), 
                     string.Concat("{\n\t\"sid\": 1,\n\t\"svcname\": \"", identifier, "\",\n\t\"dvb_servicetype\": ", (tag.Contains("Radio") || tag.Contains("radio") ? 2 : 1), ",\n\t\"enabled\": true\n}"));
-                File.WriteAllText(Path.Combine(folder, "channel", "config", channel_id), 
-                    string.Concat("{\n\t\"enabled\": true,\n\t\"name\": \"", channel.Name, "\",\n\t\"number\": \"", channelListItem.Number, "\",\n\t\"icon\": \"", img, "\",\n\t\"dvr_pre_time\": 0,\n\t\"dvr_pst_time\": 0,\n\t\"services\": [\n\t\t\"", svc_id, "\"\n\t],\n\t\"tags\": [\n\t\t", string.Join(",\n\t\t", tagIndexes), "\n\t],\n\t\"bouquet\": \"\"\n}"));
+                File.WriteAllText(Path.Combine(folder, "channel", "config", channelId), 
+                    string.Concat("{\n\t\"enabled\": true,\n\t\"name\": \"", channel.Name, "\",\n\t\"number\": \"", channelListItem.Number, "\",\n\t\"icon\": \"", img, "\",\n\t\"dvr_pre_time\": 0,\n\t\"dvr_pst_time\": 0,\n\t\"services\": [\n\t\t\"", svcId, "\"\n\t],\n\t\"tags\": [\n\t\t", string.Join(",\n\t\t", tagIndexes), "\n\t],\n\t\"bouquet\": \"\"\n}"));
 
                 //No EPG property in our channel yet
                 //if (!string.IsNullOrWhiteSpace(channel.EPG))
@@ -127,21 +126,22 @@ namespace GlashartLibrary.Helpers
         /// Generates the TVheadend configuration files
         /// </summary>
         /// <param name="channels">The channel list.</param>
+        /// <param name="channelList">The filtered channel list.</param>
         /// <param name="folder">The folder to save the TVH files.</param>
         public void GenerateTVH(List<M3UChannel> channels, List<ChannelListItem> channelList, string folder)
         {
             if (channels == null || channels.Count == 0)
                 return;
 
-            string networkId = System.Guid.NewGuid().ToString("N");
+            var networkId = Guid.NewGuid().ToString("N");
             GenerateFolders(folder, networkId);
-            Dictionary<string, string> tags = new Dictionary<string, string>();
+            var tags = new Dictionary<string, string>();
 
             //Loop throug the channel list
-            foreach (ChannelListItem channelListItem in channelList)
+            foreach (var channelListItem in channelList)
             {
                 //Find channel
-                M3UChannel channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
+                var channel = channels.FirstOrDefault(c => c.Name.Equals(channelListItem.OriginalName, StringComparison.InvariantCultureIgnoreCase));
                 if (channel == null)
                 {
                     Logger.DebugFormat("Channel '{0}' not found in available channels. Ignoring...", channelListItem.OriginalName);
@@ -155,17 +155,17 @@ namespace GlashartLibrary.Helpers
 
 
                 //No Tag property in our Channels yet
-                string tag = string.Empty; //channel.Tag
-                List<string> tagIndexes = new List<string>();
+                var tag = string.Empty; //channel.Tag
+                var tagIndexes = new List<string>();
                 if (!string.IsNullOrWhiteSpace(tag))
                 {
                     //    tag = channel.Tag;
-                    string[] channelTags = tag.Split(',');
-                    foreach (string channelTag in channelTags)
+                    var channelTags = tag.Split(',');
+                    foreach (var channelTag in channelTags)
                     {
                         if (!tags.ContainsKey(channelTag))
                         {
-                            tags.Add(channelTag, System.Guid.NewGuid().ToString("N"));
+                            tags.Add(channelTag, Guid.NewGuid().ToString("N"));
                             File.WriteAllText(Path.Combine(folder, "channel", "tag", tags[channelTag]),
                                 string.Concat("{\n\t\"enabled\": true,\n\t\"internal\": false,\n\t\"titledIcon\": false,\n\t\"name\": \"", channelTag, "\",\n\t\"comment\": \"\",\n\t\"icon\": \"\"\n}"));
                         }
@@ -174,24 +174,24 @@ namespace GlashartLibrary.Helpers
                 }
 
                 //Identifier
-                char[] id = channel.Name.ToCharArray();
-                id = Array.FindAll<char>(id, (c => char.IsLetterOrDigit(c)));
-                string identifier = new string(id);
+                var id = channel.Name.ToCharArray();
+                id = Array.FindAll(id, char.IsLetterOrDigit);
+                var identifier = new string(id);
                 //No Image property in our Channels yet
-                string img = string.Empty;// channel.Icons.FirstOrDefault(ico => File.Exists(Path.Combine(_settings.IconFolder, ico)));
+                var img = string.Empty;// channel.Icons.FirstOrDefault(ico => File.Exists(Path.Combine(_settings.IconFolder, ico)));
                 //Id's
-                string mux_id = System.Guid.NewGuid().ToString("N");
-                string svc_id = System.Guid.NewGuid().ToString("N");
-                string channel_id = System.Guid.NewGuid().ToString("N");
+                var muxId = Guid.NewGuid().ToString("N");
+                var svcId = Guid.NewGuid().ToString("N");
+                var channelId = Guid.NewGuid().ToString("N");
 
                 //Generate folder and files
-                Directory.CreateDirectory(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "services"));
-                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "config"),
+                Directory.CreateDirectory(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "services"));
+                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "config"),
                     string.Concat("{\n\t\"iptv_url\": \"", channel.Url, "\",\n\t\"iptv_interface\": \"", _settings.TVheadendNetworkInterface, "\",\n\t\"iptv_atsc\": false,\n\t\"iptv_muxname\": \"", identifier, "\",\n\t\"iptv_sname\": \"", identifier, "\",\n\t\"iptv_respawn\": false,\n\t\"enabled\": true,\n\t\"scan_result\": 1\n}"));
-                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", mux_id, "services", svc_id),
+                File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes", muxId, "services", svcId),
                     string.Concat("{\n\t\"sid\": 1,\n\t\"svcname\": \"", identifier, "\",\n\t\"dvb_servicetype\": ", (tag.Contains("Radio") || tag.Contains("radio") ? 2 : 1), ",\n\t\"enabled\": true\n}"));
-                File.WriteAllText(Path.Combine(folder, "channel", "config", channel_id),
-                    string.Concat("{\n\t\"enabled\": true,\n\t\"name\": \"", channel.Name, "\",\n\t\"number\": \"", channelListItem.Number, "\",\n\t\"icon\": \"", img, "\",\n\t\"dvr_pre_time\": 0,\n\t\"dvr_pst_time\": 0,\n\t\"services\": [\n\t\t\"", svc_id, "\"\n\t],\n\t\"tags\": [\n\t\t", string.Join(",\n\t\t", tagIndexes), "\n\t],\n\t\"bouquet\": \"\"\n}"));
+                File.WriteAllText(Path.Combine(folder, "channel", "config", channelId),
+                    string.Concat("{\n\t\"enabled\": true,\n\t\"name\": \"", channel.Name, "\",\n\t\"number\": \"", channelListItem.Number, "\",\n\t\"icon\": \"", img, "\",\n\t\"dvr_pre_time\": 0,\n\t\"dvr_pst_time\": 0,\n\t\"services\": [\n\t\t\"", svcId, "\"\n\t],\n\t\"tags\": [\n\t\t", string.Join(",\n\t\t", tagIndexes), "\n\t],\n\t\"bouquet\": \"\"\n}"));
 
                 //No EPG property in our channel yet
                 //if (!string.IsNullOrWhiteSpace(channel.EPG))
@@ -207,7 +207,7 @@ namespace GlashartLibrary.Helpers
         private void GenerateFolders(string folder, string networkId)
         {
             //Cleanup folder first
-            FileHelper.DeleteFolderContent(folder, true, false);
+            FileHelper.DeleteFolderContent(folder, true);
 
             //Generate the necessary folders
             Directory.CreateDirectory(Path.Combine(folder, "epggrab", "xmltv", "channels"));
@@ -216,7 +216,7 @@ namespace GlashartLibrary.Helpers
             Directory.CreateDirectory(Path.Combine(folder, "input", "iptv", "networks", networkId, "muxes"));
 
             File.WriteAllText(Path.Combine(folder, "input", "iptv", "config"),
-                string.Concat("{\n\t\"uuid\": \"", System.Guid.NewGuid().ToString("N"), "\",\n\t\"skipinitscan\": true,\n\t\"autodiscovery\": false\n}"));
+                string.Concat("{\n\t\"uuid\": \"", Guid.NewGuid().ToString("N"), "\",\n\t\"skipinitscan\": true,\n\t\"autodiscovery\": false\n}"));
             File.WriteAllText(Path.Combine(folder, "input", "iptv", "networks", networkId, "config"),
                 string.Concat("{\n\t\"nid\": 0,\n\t\"networkname\": \"", NetworkName, "\",\n\t\"skipinitscan\": true,\n\t\"autodiscovery\": false,\n\t\"idlescan\": false,\n\t\"max_streams\": 2,\n\t\"max_bandwidth\": 0,\n\t\"max_timeout\": 10\n}"));
         }

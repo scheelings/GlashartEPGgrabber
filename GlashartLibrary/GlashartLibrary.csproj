@@ -59,7 +59,7 @@
     </Compile>
     <Compile Include="Channel.cs" />
     <Compile Include="Helpers\IGenreTranslator.cs" />
-    <Compile Include="Helpers\TVheadendHelper.cs" />
+    <Compile Include="Helpers\TvHeadendHelper.cs" />
     <Compile Include="Helpers\TvhGenreTranslator.cs" />
     <Compile Include="IO\CacheObject.cs" />
     <Compile Include="IO\Downloader.cs" />
