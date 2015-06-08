@@ -12,7 +12,8 @@ namespace GlashartLibrary
         public string Key { get; set; }
         public string Name { get; set; }
         public List<ChannelLocation> Locations { get; set; }
-        public List<string> Icons { get; set; } 
+        public List<string> Icons { get; set; }
+        public bool Radio { get; set; }
 
         public override string ToString()
         {

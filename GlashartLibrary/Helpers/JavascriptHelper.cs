@@ -15,6 +15,7 @@ namespace GlashartLibrary.Helpers
         private const string ChannelLocationStart = "b.b=";
         private const string ChannelLocationNameStart = "\"default\":";
         private const string ChannelLocationUrlStart = "b.h=";
+        private const string IsRadioChannel = ",z:1,";
         private const string IconEnd = ".png";
 
         /// <summary>
@@ -70,6 +71,8 @@ namespace GlashartLibrary.Helpers
                         channel.Icons.Add(icon);
                         iconStart = channelPart.IndexOf(IconEnd, iconStart + 1);
                     }
+
+                    channel.Radio = channelPart.Contains(IsRadioChannel);
 
                     //Channels
                     int posChannelsStart = posStart;
