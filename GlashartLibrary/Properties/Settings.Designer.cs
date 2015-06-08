@@ -182,18 +182,27 @@ namespace GlashartLibrary.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\GlashartEPGgrabber\\Data\\TVheadend")]
-        public string TVheadendFolder {
+        public string TvheadendFolder {
             get {
-                return ((string)(this["TVheadendFolder"]));
+                return ((string)(this["TvheadendFolder"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("eth0")]
-        public string TVheadendNetworkInterface {
+        public string TvheadendNetworkInterface {
             get {
-                return ((string)(this["TVheadendNetworkInterface"]));
+                return ((string)(this["TvheadendNetworkInterface"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Glashart")]
+        public string TvheadendNetworkName {
+            get {
+                return ((string)(this["TvheadendNetworkName"]));
             }
         }
     }
