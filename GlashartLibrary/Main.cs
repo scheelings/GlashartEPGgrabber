@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using GlashartLibrary.IO;
 using GlashartLibrary.Settings;
+using GlashartLibrary.TvHeadend;
 using log4net;
 using Newtonsoft.Json;
 
@@ -239,7 +240,7 @@ namespace GlashartLibrary
             try
             {
                 var localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
-                var tvhfolder = _settings.TVheadendFolder;
+                var tvhfolder = _settings.TvheadendFolder;
 
                 //Read the channels for the xml file
                 if (channels == null)
@@ -250,7 +251,7 @@ namespace GlashartLibrary
                 }
 
                 //Determine if a channel list is present
-                var channelList = ReadChannelList(null);
+                var channelList = ReadChannelList(channels);
 
                 Logger.InfoFormat("Generating TVheadend configuration files in {0} based on channels", tvhfolder);
                 _tvhHelper.GenerateTVH(channels, channelList, tvhfolder, _settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
@@ -262,6 +263,36 @@ namespace GlashartLibrary
             }
         }
 
+        public void UpdateTvHeadend(List<Channel> channels = null)
+        {
+            try
+            {
+                var localFile = Path.Combine(_settings.TvMenuFolder, ChannelsXmlFile);
+                //Read the channels for the xml file
+                if (channels == null)
+                {
+                    Logger.InfoFormat("Reading channels from XML file {0}", localFile);
+                    channels = XmlHelper.Deserialize<List<Channel>>(localFile);
+                    Logger.InfoFormat("{0} channels found in channels xml file", channels.Count);
+                }
+
+                //Determine if a channel list is present
+                var channelList = ReadChannelList(channels);
+
+                Logger.InfoFormat("Read TvHeadend configuration from {0}", _settings.TvMenuFolder);
+                var tvhConfig = TvhConfiguration.ReadFromDisk(_settings.TvheadendFolder, _settings.TvheadendNetworkName);
+                Logger.Info("Update TVheadend configuration based on channels");
+                _tvhHelper.UpdateTvhNetwork(tvhConfig, channels, channelList, _settings.M3U_ChannelLocationImportance.OfType<string>().ToArray());
+                Logger.InfoFormat("Save updated TvHeadend configuration to {0}", _settings.TvMenuFolder);
+                tvhConfig.SaveToDisk();
+            }
+            catch (Exception err)
+            {
+                Logger.Error(err);
+            }
+            
+        }
+
         /// <summary>
         /// Converts the M3U file to TVheadend configuration files
         /// </summary>
@@ -269,15 +300,22 @@ namespace GlashartLibrary
         {
             try
             {
-                var tvhFolder = _settings.TVheadendFolder;
+                var tvhFolder = _settings.TvheadendFolder;
                 var downloadedM3UFile = _settings.DownloadedM3UFile;
 
                 Logger.InfoFormat("Reading downloaded M3U file {0}", downloadedM3UFile);
-                var channels = _m3UHelper.ParseM3U(downloadedM3UFile);
+                var m3UChannels = _m3UHelper.ParseM3U(downloadedM3UFile);
                 Logger.Info("Downloaded M3U file parsed");
+                var channels = m3UChannels.Select(c => new Channel
+                {
+                    Name = c.Name,
+                    Icons = new List<string>(),
+                    Locations = new List<ChannelLocation> { new ChannelLocation { Name ="m3u", Url = c.Url}}
+                }).ToList();
+                Logger.Info("Generated list of channels");
 
                 //Determine if a channel list is present
-                var channelList = ReadChannelList(null);
+                var channelList = ReadChannelList(channels);
 
                 Logger.InfoFormat("Generating TVheadend configuration files in {0} based on parsed M3U file", tvhFolder);
                 _tvhHelper.GenerateTVH(channels, channelList, tvhFolder);

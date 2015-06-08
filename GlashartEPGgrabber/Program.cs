@@ -108,9 +108,14 @@ namespace GlashartEPGgrabber
                     main.GenerateXmlTv(epgData, channels);
                 }
                 if (_generateTVheadend)
-                    main.GenerateTVheadend(channels);
+                {
+                    main.UpdateTvHeadend(channels);
+                }
+
                 if (_convertM3uToTVheadend)
+                {
                     main.ConvertM3UtoTVheadend();
+                }
                 
                 if (_convertM3U)
                     main.ConvertM3Ufile();

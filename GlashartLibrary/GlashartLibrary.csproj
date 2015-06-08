@@ -91,6 +91,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Settings\ISettings.cs" />
+    <Compile Include="TvHeadend\Channel.cs" />
+    <Compile Include="TvHeadend\Epg.cs" />
+    <Compile Include="TvHeadend\Mux.cs" />
+    <Compile Include="TvHeadend\Network.cs" />
+    <Compile Include="TvHeadend\Service.cs" />
+    <Compile Include="TvHeadend\Tag.cs" />
+    <Compile Include="TvHeadend\TvhConfiguration.cs" />
+    <Compile Include="TvHeadend\TvhJsonConvert.cs" />
+    <Compile Include="TvHeadend\TvhJsonTextWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
