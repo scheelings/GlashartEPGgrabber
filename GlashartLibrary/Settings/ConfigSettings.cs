@@ -22,7 +22,8 @@ namespace GlashartLibrary.Settings
         public int EpgArchiving { get { return Properties.Settings.Default.EpgArchiving; } }
         public string IconFolder { get { return Properties.Settings.Default.IconFolder; } }
         public string DataFolder { get { return Properties.Settings.Default.DataFolder; } }
-        public string TVheadendFolder { get { return Properties.Settings.Default.TVheadendFolder; } }
-        public string TVheadendNetworkInterface { get { return Properties.Settings.Default.TVheadendNetworkInterface; } }
+        public string TvheadendFolder { get { return Properties.Settings.Default.TvheadendFolder; } }
+        public string TvheadendNetworkInterface { get { return Properties.Settings.Default.TvheadendNetworkInterface; } }
+        public string TvheadendNetworkName { get; set; }
     }
 }

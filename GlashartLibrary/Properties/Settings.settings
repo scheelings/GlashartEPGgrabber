@@ -58,11 +58,14 @@
     <Setting Name="UseDisplayNameForIcon" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="TVheadendFolder" Type="System.String" Scope="Application">
+    <Setting Name="TvheadendFolder" Type="System.String" Scope="Application">
       <Value Profile="(Default)">D:\GlashartEPGgrabber\Data\TVheadend</Value>
     </Setting>
-    <Setting Name="TVheadendNetworkInterface" Type="System.String" Scope="Application">
+    <Setting Name="TvheadendNetworkInterface" Type="System.String" Scope="Application">
       <Value Profile="(Default)">eth0</Value>
+    </Setting>
+    <Setting Name="TvheadendNetworkName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Glashart</Value>
     </Setting>
   </Settings>
 </SettingsFile>

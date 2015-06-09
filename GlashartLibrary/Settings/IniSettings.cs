@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 using log4net;
 
 namespace GlashartLibrary.Settings
@@ -24,7 +24,7 @@ namespace GlashartLibrary.Settings
         public string TvMenuFolder { get { return Path.Combine(DataFolder, "TvMenu"); } }
         public string EpgFolder { get { return Path.Combine(DataFolder, "Epg"); } }
         public string IconFolder { get { return Path.Combine(DataFolder, "Icons"); } }
-        public string TVheadendFolder { get { return Path.Combine(DataFolder, "TVheadend"); } }
+        public string TvheadendFolder { get { return Path.Combine(DataFolder, "TVheadend"); } }
 
         public string XmlTvFile { get { return Path.Combine(DataFolder, XmlTvFileName); } }
         private string XmlTvFileName { get; set; }
@@ -35,7 +35,8 @@ namespace GlashartLibrary.Settings
         public string TvhGenreTranslationsFile { get { return Path.Combine(DataFolder, TvhGenreTranslationsFileName); } }
         private string TvhGenreTranslationsFileName { get; set; }
 
-        public string TVheadendNetworkInterface { get; private set; }
+        public string TvheadendNetworkInterface { get; private set; }
+        public string TvheadendNetworkName { get; private set; }
 
         public string ChannelsListFile { get { return Path.Combine(TvMenuFolder, ChannelsListFileName); } }
         private string ChannelsListFileName { get; set; }
@@ -49,6 +50,7 @@ namespace GlashartLibrary.Settings
         public void Load()
         {
             Logger.Info("Read GlashartEPGgrabber.ini");
+            M3U_ChannelLocationImportance = new List<string>();
             try
             {
                 using (var reader = new StreamReader("GlashartEPGgrabber.ini"))
@@ -75,66 +77,30 @@ namespace GlashartLibrary.Settings
                 Logger.WarnFormat("Failed to read configuration line: {0}", line);
                 return;
             }
-            SetValue(keyvalue[0], keyvalue[1]);
+            if (keyvalue[0].Equals("M3U_ChannelLocationImportance"))
+            {
+                M3U_ChannelLocationImportance.Add(keyvalue[1]);
+            }
+            else SetValue(keyvalue[0], keyvalue[1]);
         }
 
         private void SetValue(string key, string value)
         {
-            switch (key)
+            var propertyInfo = GetType().GetProperty(key, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
+            if (propertyInfo == null)
             {
-                case "TvMenuURL":
-                    TvMenuURL = value;
-                    break;
-                case "EpgURL":
-                    EpgURL = value;
-                    break;
-                case "ImagesURL":
-                    ImagesURL = value;
-                    break;
-                case "M3UFileName":
-                    M3UFileName = value;
-                    break;
-                case "IgmpToUdp":
-                    IgmpToUdp = bool.Parse(value);
-                    break;
-                case "M3U_ChannelLocationImportance":
-                    M3U_ChannelLocationImportance = value.Split(';').ToList();
-                    break;
-                case "ChannelsListFileName":
-                    ChannelsListFileName = value;
-                    break;
-                case "EpgNumberOfDays":
-                    EpgNumberOfDays = int.Parse(value);
-                    break;
-                case "DataFolder":
-                    DataFolder = value;
-                    break;
-                case "EpgArchiving":
-                    EpgArchiving = int.Parse(value);
-                    break;
-                case "XmlTvFileName":
-                    XmlTvFileName = value;
-                    break;
-                case "DownloadedM3UFileName":
-                    DownloadedM3UFileName = value;
-                    break;
-                case "LogLevel":
-                    LogLevel = value;
-                    break;
-                case "TvhGenreTranslationsFileName":
-                    TvhGenreTranslationsFileName = value;
-                    break;
-                case "UseDisplayNameForIcon":
-                    UseDisplayNameForIcon = bool.Parse(value);
-                    break;
-                case "TVheadendNetworkInterface":
-                    TVheadendNetworkInterface = value;
-                    break;
-                default:
-                    Logger.WarnFormat("Unknown configuration key: {0}", key);
-                    return;
+                Logger.WarnFormat("Unknown configuration key: {0}", key);
+                return;
             }
-            Logger.DebugFormat("Read configuration item {0} with value {1}", key, value);
+            try
+            {
+                Logger.DebugFormat("Read configuration item {0} with value {1}", key, value);
+                propertyInfo.SetValue(this, Convert.ChangeType(value, propertyInfo.PropertyType), null);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to read {0} into {1} as {2}", key, value, propertyInfo.PropertyType);
+            }
         }
     }
 }

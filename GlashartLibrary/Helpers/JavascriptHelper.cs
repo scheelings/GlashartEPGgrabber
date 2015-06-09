@@ -4,17 +4,23 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using log4net;
+using log4net.Repository.Hierarchy;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class JavascriptHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(JavascriptHelper));
+
         private const string StartFunction = "function Rc(";
         private const string ChannelSeparatorRegex = "e.push\\(\"";
         private const string ChannelNameStart = "\"default\":";
+        private const string ChannelNumberStart = "a=";
         private const string ChannelLocationStart = "b.b=";
         private const string ChannelLocationNameStart = "\"default\":";
         private const string ChannelLocationUrlStart = "b.h=";
+        private const string IsRadioChannel = ",z:1,";
         private const string IconEnd = ".png";
 
         /// <summary>
@@ -42,7 +48,7 @@ namespace GlashartLibrary.Helpers
                 //Loop through each channel part
                 foreach (string channelPart in channelParts)
                 {
-                    Channel channel = new Channel { Locations = new List<ChannelLocation>() };
+                    var channel = new Channel { Locations = new List<ChannelLocation>() };
                     result.Add(channel);
 
                     //Key
@@ -59,6 +65,7 @@ namespace GlashartLibrary.Helpers
                             channel.Name = RemoveInvalidCharacters(StringHelper.DecodeEncodedNonAsciiCharacters(channelPart.Substring(posStart, posEnd - posStart)));
                     }
 
+                    //Icon
                     var iconStart = channelPart.IndexOf(IconEnd);
                     while (iconStart != -1)
                     {
@@ -70,6 +77,28 @@ namespace GlashartLibrary.Helpers
                         channel.Icons.Add(icon);
                         iconStart = channelPart.IndexOf(IconEnd, iconStart + 1);
                     }
+
+                    //Channel number
+                    posStart = channelPart.IndexOf(ChannelNumberStart);
+                    if (posStart != -1)
+                    {
+                        posStart = posStart + ChannelNumberStart.Length;
+                        posEnd = channelPart.IndexOf(";", posStart);
+                        if (posEnd != -1)
+                        {
+                            try
+                            {
+                                channel.Number = Int32.Parse(channelPart.Substring(posStart, posEnd - posStart));
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error(ex, "Failed to read the channel number for {0}", channel.Key);
+                            }
+                        }
+                    }
+
+                    //Radio
+                    channel.Radio = channelPart.Contains(IsRadioChannel);
 
                     //Channels
                     int posChannelsStart = posStart;

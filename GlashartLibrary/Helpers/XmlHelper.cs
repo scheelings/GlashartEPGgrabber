@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml.Serialization;
+using log4net;
 
 namespace GlashartLibrary.Helpers
 {
     public sealed class XmlHelper
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(XmlHelper));
+
         /// <summary>
         /// Serializes the specified object.
         /// </summary>
@@ -28,10 +32,18 @@ namespace GlashartLibrary.Helpers
         /// <returns></returns>
         public static T Deserialize<T>(string fileName)
         {
-            var xs = new XmlSerializer(typeof(T));
-            using (var stream = new StreamReader(fileName))
+            try
             {
-                return (T)xs.Deserialize(stream);
+                var xs = new XmlSerializer(typeof (T));
+                using (var stream = new StreamReader(fileName))
+                {
+                    return (T) xs.Deserialize(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex,"Failed to read file {0} as XML for {1}", fileName, typeof(T).Name);
+                return default(T);
             }
         }
     }

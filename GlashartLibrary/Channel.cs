@@ -7,12 +7,15 @@ namespace GlashartLibrary
         public Channel()
         {
             Icons = new List<string>();
+            Number = -1;
         }
 
         public string Key { get; set; }
         public string Name { get; set; }
         public List<ChannelLocation> Locations { get; set; }
-        public List<string> Icons { get; set; } 
+        public List<string> Icons { get; set; }
+        public bool Radio { get; set; }
+        public int Number { get; set; }
 
         public override string ToString()
         {

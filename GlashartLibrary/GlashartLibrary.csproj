@@ -59,8 +59,9 @@
     </Compile>
     <Compile Include="Channel.cs" />
     <Compile Include="Helpers\IGenreTranslator.cs" />
-    <Compile Include="Helpers\TVheadendHelper.cs" />
+    <Compile Include="Helpers\TvHeadendHelper.cs" />
     <Compile Include="Helpers\TvhGenreTranslator.cs" />
+    <Compile Include="IO\CacheObject.cs" />
     <Compile Include="IO\Downloader.cs" />
     <Compile Include="IO\FileHelper.cs" />
     <Compile Include="IO\HttpWebDownloader.cs" />
@@ -90,10 +91,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Settings\ISettings.cs" />
+    <Compile Include="TvHeadend\Channel.cs" />
+    <Compile Include="TvHeadend\Epg.cs" />
+    <Compile Include="TvHeadend\Mux.cs" />
+    <Compile Include="TvHeadend\Network.cs" />
+    <Compile Include="TvHeadend\Service.cs" />
+    <Compile Include="TvHeadend\Tag.cs" />
+    <Compile Include="TvHeadend\TvhConfiguration.cs" />
+    <Compile Include="TvHeadend\TvhJsonConvert.cs" />
+    <Compile Include="TvHeadend\TvhJsonTextWriter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="log4net.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -17,13 +17,14 @@ namespace GlashartLibrary.Settings
         string EpgFolder { get; }
         string IconFolder { get; }
         string DataFolder { get; }
-        string TVheadendFolder { get; }
+        string TvheadendFolder { get; }
 
         string ChannelsListFile { get; }
         string M3UFile { get; }
         string XmlTvFile { get; }
         string DownloadedM3UFile { get; }
         string TvhGenreTranslationsFile { get; }
-        string TVheadendNetworkInterface { get; }
+        string TvheadendNetworkInterface { get; }
+        string TvheadendNetworkName { get; }
     }
 }
