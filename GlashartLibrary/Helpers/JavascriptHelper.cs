@@ -14,7 +14,7 @@ namespace GlashartLibrary.Helpers
         private static readonly ILog Logger = LogManager.GetLogger(typeof(JavascriptHelper));
 
         private const string StartFunction = "function Rc(";
-        private const string ChannelSeparatorRegex = "e.push\\(\"";
+        private const string ChannelSeparatorRegex = "f.push\\(\"";
         private const string ChannelNameStart = "\"default\":";
         private const string ChannelNumberStart = "a=";
         private const string ChannelLocationStart = "b.b=";
@@ -74,7 +74,8 @@ namespace GlashartLibrary.Helpers
                         begin++;
                         var end = (iconStart + IconEnd.Length) - begin;
                         var icon = channelPart.Substring(begin, end);
-                        channel.Icons.Add(icon);
+                        if (!channel.Icons.Contains(icon, StringComparer.InvariantCultureIgnoreCase))
+                            channel.Icons.Add(icon);
                         iconStart = channelPart.IndexOf(IconEnd, iconStart + 1);
                     }
 
