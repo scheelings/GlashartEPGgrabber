@@ -52,6 +52,8 @@ GlashartEPGgrabber.exe [/dl-tvmenu] [/unzip-tvmenu] [/dl-tvscript] [/unzip-tvscr
 
 /convert-m3u		Converts a downloaded M3U file to a new M3U file
 /m3u-to-tvh			Converts a downloaded M3U file to TVheadend configuration files
+
+/ini-settings			Load the ini file instead of the GlashartEPGgrabber.exe.config (for linux mkbundle support)
 ```
 
 ## Config
